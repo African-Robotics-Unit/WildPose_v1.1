@@ -25,5 +25,4 @@ Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/
 #### ROS2 Foxy
 
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
-
-1.
+See `setup_scripts/ros2_foxy.sh`.
