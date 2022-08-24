@@ -86,7 +86,10 @@ $ git clone https://github.com/African-Robotics-Unit/M2S2.git
 $ cd ~/ros2_ws/M2S2
 $ git checkout -b ros-drivers
 $ sudo apt install -y ros-foxy-camera-info-manager
+$ colcon build --packages-select ximea_ros2_cam
 ```
+
+Then, add `source ~/ros2_ws/M2S2/install/setup.bash` into `~/.bashrc`
 
 ### Host Computer
 
