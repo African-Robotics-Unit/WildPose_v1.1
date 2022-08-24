@@ -29,7 +29,7 @@ See `setup_scripts/ros2_foxy.sh`.
 
 #### The Official Ximea Camera Driver
 
-##### Install Xiema Software Package.
+##### 1. Install Xiema Software Package.
 
 ```bash
 $ cd ~/Downloads
@@ -43,13 +43,13 @@ $ cd ~/Downloads
 $ rm -rf tmp
 ```
 
-##### Add user to the `plugdev` group
+##### 2. Add user to the `plugdev` group
 
 ```bash
 $ sudo gpasswd -a $USER plugdev
 ```
 
-##### Setup the USB FS Memory Max Allocation to Infinite
+##### 3. Setup the USB FS Memory Max Allocation to Infinite
 
 This is done to make sure that the USB FS buffering size is sufficient for high bandwidth streams through USB 3.0
 
@@ -61,7 +61,7 @@ Or
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
 
-##### Set realtime priority to the `/etc/security/limits.conf`
+##### 4. Set realtime priority to the `/etc/security/limits.conf`
 
 Place the following in `/etc/security/limits.conf` to make the Ximea camera driver have real time priority.
 
