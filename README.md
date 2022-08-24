@@ -27,9 +27,66 @@ Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
 See `setup_scripts/ros2_foxy.sh`.
 
+#### The Official Ximea Camera Driver
+
+##### Install Xiema Software Package.
+
+```bash
+$ cd ~/Downloads
+$ mkdir tmp
+$ cd ~/Downloads/tmp
+$ wget https://www.ximea.com/support/attachments/download/271/XIMEA_Linux_SP.tgz
+$ tar -xf XIMEA_Linux_SP.tgz
+$ cd ~/Downloads/tmp/package
+$ ./install -cam_usb30
+$ cd ~/Downloads
+$ rm -rf tmp
+```
+
+##### Add user to the `plugdev` group
+
+```bash
+$ sudo gpasswd -a $USER plugdev
+```
+
+##### Setup the USB FS Memory Max Allocation to Infinite
+
+This is done to make sure that the USB FS buffering size is sufficient for high bandwidth streams through USB 3.0
+
+*Set this with every new shell*:
+Put `echo 0 > /sys/module/usbcore/parameters/usbfs_memory_mb` into `/etc/rc.local`
+
+Or
+
+*Apply to current shell*:
+`echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
+
+##### Set realtime priority to the `/etc/security/limits.conf`
+
+Place the following in `/etc/security/limits.conf` to make the Ximea camera driver have real time priority.
+
+```
+*               -       rtprio          0
+@realtime       -       rtprio          81
+*               -       nice            0
+@realtime       -       nice            -16
+```
+
+Then add the current user to the group `realtime`:
+```bash
+$ sudo groupadd realtime
+$ sudo gpasswd -a $USER realtime
+```
+
 #### M2S2 for ximea camera driver
 
-https://github.com/African-Robotics-Unit/M2S2.git
+```bash
+$ cd ~/ros2_ws
+$ git clone https://github.com/African-Robotics-Unit/M2S2.git
+$ cd ~/ros2_ws/M2S2
+$ git checkout -b ros-drivers
+$ sudo apt install -y ros-foxy-camera-info-manager
+```
 
 ### Host Computer
 
