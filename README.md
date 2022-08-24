@@ -26,3 +26,13 @@ Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/
 
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
 See `setup_scripts/ros2_foxy.sh`.
+
+#### M2S2 for ximea camera driver
+
+https://github.com/African-Robotics-Unit/M2S2.git
+
+### Host Computer
+
+### Visual Studio Code
+
+https://youtu.be/VeOj_C6rAF4?t=327
