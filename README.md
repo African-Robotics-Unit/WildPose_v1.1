@@ -29,6 +29,8 @@ See `setup_scripts/ros2_foxy.sh`.
 
 #### The Official Ximea Camera Driver
 
+This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam).
+
 ##### 1. Install Xiema Software Package.
 
 ```bash
@@ -90,6 +92,32 @@ $ colcon build --packages-select ximea_ros2_cam
 ```
 
 Then, add `source ~/ros2_ws/M2S2/install/setup.bash` into `~/.bashrc`
+
+#### Livox-SDK
+
+This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
+
+```bash
+$ sudo apt install -y cmake
+$ cd ~/Documents
+$ git clone https://github.com/Livox-SDK/Livox-SDK.git
+$ cd Livox-SDK
+$ cd build && cmake ..
+$ make
+$ sudo make install
+```
+
+#### Livox ROS2 Driver
+
+This is [the original GitHub repository](https://github.com/Livox-SDK/livox_ros2_driver).
+
+```bash
+$ cd ~/ros2_ws
+$ git clone https://github.com/Livox-SDK/livox_ros2_driver.git livox_ros2_driver/src
+$ cd livox_ros2_driver
+$ colcon build
+$ source ~/ros2_ws/livox_ros2_driver/install/setup.bash
+```
 
 ### Host Computer
 
