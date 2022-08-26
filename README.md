@@ -22,6 +22,10 @@ To set up the Jetson AGX Xavier Developer Kit, we need a host computer installed
 
 Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/dotfiles)).
 
+#### Network Configuration
+
+On the Jetson, you can use `nmcli` command to change the network settings.
+
 #### ROS2 Foxy
 
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
@@ -91,7 +95,13 @@ $ sudo apt install -y ros-foxy-camera-info-manager
 $ colcon build --packages-select ximea_ros2_cam
 ```
 
-Then, add `source ~/ros2_ws/M2S2/install/setup.bash` into `~/.bashrc`
+Then, add `source ~/ros2_ws/M2S2/install/setup.bash` into `~/.bashrc`.
+
+To avoid the [error 45](https://github.com/Fu-physics/Ximea/blob/master/xiPython/v3/ximea/xidefs.py#L49), you have to run the following command.
+
+```bash
+$ sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb >/dev/null <<<0
+```
 
 #### Livox-SDK
 
@@ -118,6 +128,8 @@ $ cd livox_ros2_driver
 $ colcon build
 $ source ~/ros2_ws/livox_ros2_driver/install/setup.bash
 ```
+
+Update the config file.
 
 ### Host Computer
 
