@@ -1,5 +1,11 @@
 # WildPose v1.1
 
+## Hardware
+
+### XIMEA -- MQ022CG-CM
+
+![Slide86](https://user-images.githubusercontent.com/6120047/187175093-c170c1db-6820-45db-b62d-7cf7d2296982.jpeg)
+
 ## Prerequisite
 
 - JetPack v5
