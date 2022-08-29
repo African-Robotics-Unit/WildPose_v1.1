@@ -26,6 +26,15 @@ Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/
 
 On the Jetson, you can use `nmcli` command to change the network settings.
 
+Set the static IP on the UCT network ([reference](https://f1tenth.readthedocs.io/en/stable/getting_started/software_setup/optional_software_nx.html)).
+```bash
+$ nmcli c show
+NAME                UUID                                  TYPE      DEVICE
+Wired connection 1  b72f3d20-4de2-3d44-9c45-9689d79f22e4  ethernet  eth0
+docker0             bcb6f95d-5cf5-483d-ac09-c312a4da8c0b  bridge    docker0
+$ sudo nmcli c mod "Wired connection 1" ipv4.address [NEW_ADDRESS]/27
+```
+
 #### ROS2 Foxy
 
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
@@ -101,6 +110,14 @@ To avoid the [error 45](https://github.com/Fu-physics/Ximea/blob/master/xiPython
 
 ```bash
 $ sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb >/dev/null <<<0
+```
+
+#### image_view
+
+To show the ximea camera image data, you are recommended to install [image_view](https://index.ros.org/p/image_view/).
+
+```bash
+$ sudo apt install -y ros-foxy-image-view
 ```
 
 #### Livox-SDK
