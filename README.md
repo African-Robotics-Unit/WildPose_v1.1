@@ -82,21 +82,10 @@ Or
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
 
-##### 4. Set realtime priority to the `/etc/security/limits.conf`
+##### 4. Set realtime priority
 
-Place the following in `/etc/security/limits.conf` to make the Ximea camera driver have real time priority.
-
-```
-*               -       rtprio          0
-@realtime       -       rtprio          81
-*               -       nice            0
-@realtime       -       nice            -16
-```
-
-Then add the current user to the group `realtime`:
 ```bash
-$ sudo groupadd realtime
-$ sudo gpasswd -a $USER realtime
+$ ./xiapi.sh
 ```
 
 #### M2S2 for ximea camera driver

@@ -96,7 +96,7 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 100,      # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 0,      # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
@@ -117,6 +117,7 @@ ximea_cam_parameters = {
 
 ximea_ros2_cam_params = [{k: v} for k, v in ximea_cam_parameters.items()]
 
+
 def generate_launch_description():
     ximea_cam_driver = Node(
         package='ximea_ros2_cam',
@@ -136,4 +137,5 @@ def generate_launch_description():
 
     return LaunchDescription([
         ximea_cam_driver,
+        livox_driver,
     ])
