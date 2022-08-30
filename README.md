@@ -24,6 +24,11 @@ To set up the Jetson AGX Xavier Developer Kit, we need a host computer installed
 2. Connect the host computer and Jetson AGX Xavier Developer Kit (see this [video](https://www.youtube.com/watch?v=-nX8eD7FusQ)).
 3. Run NVIDIA SDK Manager and follow the instruction.
 
+Unleash the limitation of CPU based on [the reference](https://forums.developer.nvidia.com/t/cpus-usage-problem-solved/65993/3).
+```bash
+$ sudo nvpmodel -m 0
+```
+
 #### dotfiles
 
 Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/dotfiles)).
