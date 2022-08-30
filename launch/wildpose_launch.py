@@ -48,9 +48,9 @@ ximea_cam_parameters = {
     'calib_file': "", # Calibration file used by the camera
     'frame_id': '0',
     'num_cams_in_bus': 1, # Number of USB cameras processed by a single USB controller
-    'bw_safetyratio': 1.0,    # Bandwidth safety ratio, a multiplier to the bandwidth allocated for each camera
+    'bw_safetyratio': 1.0,  # Bandwidth safety ratio, a multiplier to the bandwidth allocated for each camera
     'poll_time': 2.0, # Used to set the duration (in seconds) which the camera is attempted to be opened again.
-    'poll_time_frame': 1/100, # the ROS timer loop period (in seconds) for the ximea camera node. It should generally be set to a rate that is a factor higher than the camera capture rate.
+    'poll_time_frame': 1/170, # the ROS timer loop period (in seconds) for the ximea camera node. It should generally be set to a rate that is a factor higher than the camera capture rate.
     'publish_xi_image_info': True,    # Flag for publishing the extra ximea camera information provided with each image acquisition.
 
     # directory to save images (make sure that directory exists and that it is an absolute path).
@@ -95,15 +95,15 @@ ximea_cam_parameters = {
     'hw_trigger_edge': 0,   # if hw trigger, 0/1: rising/falling edge trigger
 
     # for camera frame rate
-    'frame_rate_control': True,  # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 0, # for trigger mode, fps limiter (0 for none)
+    'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
+    'frame_rate_set': 100,      # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
     'auto_exposure': False,          # auto exposure on or off
     'exposure_time': 6000,           # manual exposure time in microseconds
     'manual_gain': 9.0,              # manual exposure gain
-    'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1: use only exposure)
+    'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1.0: favour only exposure)
     'auto_time_limit': 30000,        # auto exposure time limit in microseconds
     'auto_gain_limit': 2.0,          # auto exposure gain limit
 
