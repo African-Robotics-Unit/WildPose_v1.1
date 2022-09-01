@@ -49,6 +49,8 @@ $ sudo nmcli c mod "Wired connection 1" ipv4.address [NEW_ADDRESS]/27
 
 #### SSH
 
+***HOST COMPUTER***
+
 For the ssh login from your computer, you should make a pair of ssh key on the host computer.
 ```bash
 $ ssh-keygen -t rsa
@@ -57,6 +59,16 @@ $ ssh-keygen -t rsa
 Then, copy the public key into the Jetson.
 ```bash
 $ ssh-copy-id -i ~/.ssh/wildpose_jetsonagx.pub [user]@[ip address]
+```
+
+Add the jetson IP address information in `~/.ssh/config`:
+```
+Host [ip address]
+     HostName [ip address]
+     User naoya
+     IdentityFile ~/.ssh/wildpose_jetsonagx
+     UseKeychain yes
+     AddKeysToAgent yes
 ```
 
 #### dotfiles
