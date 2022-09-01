@@ -30,9 +30,9 @@ $ sudo nvpmodel -m 0
 $ sudo /usr/bin/jetson_clocks
 ```
 
-#### dotfiles
+#### General Settings
 
-Set the dotfiles you wanna use ([Naoya's dotfiles](https://github.com/DenDen047/dotfiles)).
+- Settings > Power > Blank Screen > `Never`
 
 #### Network Configuration
 
@@ -47,6 +47,22 @@ docker0             bcb6f95d-5cf5-483d-ac09-c312a4da8c0b  bridge    docker0
 $ sudo nmcli c mod "Wired connection 1" ipv4.address [NEW_ADDRESS]/27
 ```
 
+#### SSH
+
+For the ssh login from your computer, you should make a pair of ssh key on the host computer.
+```bash
+$ ssh-keygen -t rsa
+```
+
+Then, copy the public key into the Jetson.
+```bash
+$ ssh-copy-id -i ~/.ssh/wildpose_jetsonagx.pub [user]@[ip address]
+```
+
+#### dotfiles
+
+Set the dotfiles you wanna use (e.g., [Naoya's dotfiles](https://github.com/DenDen047/dotfiles)).
+
 #### ROS2 Foxy
 
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
@@ -54,7 +70,7 @@ See `setup_scripts/ros2_foxy.sh`.
 
 #### The Official Ximea Camera Driver
 
-This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam).
+This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
 
 ##### 1. Install Xiema Software Package.
 
