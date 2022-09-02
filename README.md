@@ -44,7 +44,7 @@ $ nmcli c show
 NAME                UUID                                  TYPE      DEVICE
 Wired connection 1  b72f3d20-4de2-3d44-9c45-9689d79f22e4  ethernet  eth0
 docker0             bcb6f95d-5cf5-483d-ac09-c312a4da8c0b  bridge    docker0
-$ sudo nmcli c mod "Wired connection 1" ipv4.address [NEW_ADDRESS]/27
+$ sudo nmcli c modify "Wired connection 1" ipv4.address [NEW_ADDRESS]/27
 ```
 
 #### SSH
@@ -84,27 +84,14 @@ See `setup_scripts/ros2_foxy.sh`.
 
 This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
 
-##### 1. Install Xiema Software Package.
 
 ```bash
-$ cd ~/Downloads
-$ mkdir tmp
-$ cd ~/Downloads/tmp
-$ wget https://www.ximea.com/support/attachments/download/271/XIMEA_Linux_SP.tgz
-$ tar -xf XIMEA_Linux_SP.tgz
-$ cd ~/Downloads/tmp/package
-$ ./install -cam_usb30
-$ cd ~/Downloads
-$ rm -rf tmp
+$ cd setup_scripts/
+$ chmod +x ./xiapi.sh
+$ ./xiapi.sh
 ```
 
-##### 2. Add user to the `plugdev` group
-
-```bash
-$ sudo gpasswd -a $USER plugdev
-```
-
-##### 3. Setup the USB FS Memory Max Allocation to Infinite
+##### Setup the USB FS Memory Max Allocation to Infinite
 
 This is done to make sure that the USB FS buffering size is sufficient for high bandwidth streams through USB 3.0
 
@@ -116,10 +103,18 @@ Or
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
 
-##### 4. Set realtime priority
+#### Livox-SDK
+
+This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
 
 ```bash
-$ ./xiapi.sh
+$ sudo apt install -y cmake
+$ cd ~/Documents
+$ git clone https://github.com/Livox-SDK/Livox-SDK.git
+$ cd Livox-SDK
+$ cd build && cmake ..
+$ make
+$ sudo make install
 ```
 
 #### M2S2 for ximea camera driver
@@ -147,20 +142,6 @@ To show the ximea camera image data, you are recommended to install [image_view]
 
 ```bash
 $ sudo apt install -y ros-foxy-image-view
-```
-
-#### Livox-SDK
-
-This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
-
-```bash
-$ sudo apt install -y cmake
-$ cd ~/Documents
-$ git clone https://github.com/Livox-SDK/Livox-SDK.git
-$ cd Livox-SDK
-$ cd build && cmake ..
-$ make
-$ sudo make install
 ```
 
 #### Livox ROS2 Driver
