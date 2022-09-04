@@ -64,11 +64,11 @@ $ ssh-copy-id -i ~/.ssh/wildpose_jetsonagx.pub [user]@[ip address]
 Add the jetson IP address information in `~/.ssh/config`:
 ```
 Host [ip address]
-     HostName [ip address]
-     User naoya
-     IdentityFile ~/.ssh/wildpose_jetsonagx
-     UseKeychain yes
-     AddKeysToAgent yes
+    HostName [ip address]
+    User naoya
+    IdentityFile ~/.ssh/wildpose_jetsonagx
+    UseKeychain yes
+    AddKeysToAgent yes
 ```
 
 #### dotfiles
