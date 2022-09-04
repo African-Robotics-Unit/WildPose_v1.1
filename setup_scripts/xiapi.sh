@@ -4,10 +4,17 @@
 
 sudo apt update
 sudo apt install ca-certificates -y
+
+cd ~/Downloads
+mkdir tmp
+cd ~/Downloads/tmp
 wget https://www.ximea.com/downloads/recent/XIMEA_Linux_SP.tgz
 tar -xf XIMEA_Linux_SP.tgz
 cd package
 ./install
+cd ~/Downloads
+rm -rf tmp
+
 sudo gpasswd -a "$(whoami)" plugdev
 if [ -f /etc/rc.local ]
 then
