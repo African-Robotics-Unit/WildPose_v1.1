@@ -23,7 +23,3 @@ pip3 install argcomplete
 
 # Install colcon
 sudo apt install python3-colcon-common-extensions -y
-
-# ROS2 folders
-mkdir ~/ros2_ws
-cd ~/ros2_ws
