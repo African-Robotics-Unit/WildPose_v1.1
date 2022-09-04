@@ -84,24 +84,9 @@ See `setup_scripts/ros2_foxy.sh`.
 
 This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
 
-##### 1. Install Xiema Software Package.
 
 ```bash
-$ cd ~/Downloads
-$ mkdir tmp
-$ cd ~/Downloads/tmp
-$ wget https://www.ximea.com/support/attachments/download/271/XIMEA_Linux_SP.tgz
-$ tar -xf XIMEA_Linux_SP.tgz
-$ cd ~/Downloads/tmp/package
-$ ./install -cam_usb30
-$ cd ~/Downloads
-$ rm -rf tmp
-```
-
-##### 2. Add user to the `plugdev` group
-
-```bash
-$ sudo gpasswd -a $USER plugdev
+$ ./xiapi.sh
 ```
 
 ##### 3. Setup the USB FS Memory Max Allocation to Infinite
@@ -115,12 +100,6 @@ Or
 
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
-
-##### 4. Set realtime priority
-
-```bash
-$ ./xiapi.sh
-```
 
 #### M2S2 for ximea camera driver
 
