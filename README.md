@@ -161,6 +161,15 @@ $ source ~/ros2_ws/livox_ros2_driver/install/setup.bash
 Add `source ~/ros2_ws/livox_ros2_driver/install/setup.bash` into `~/.bashrc`.
 Don't forget to change **the config file**.
 
+#### jtop
+
+To check the Jetson status, [`jtop`](https://github.com/rbonghi/jetson_stats) should be installed.
+```bash
+$ sudo -H pip install -U jetson-stats
+$ sudo reboot
+```
+
+
 ### Host Computer
 
 To develop ROS2 programs on your host/local computer, VS Code ROS Extension was used.
