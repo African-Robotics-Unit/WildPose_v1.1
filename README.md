@@ -162,8 +162,7 @@ Don't forget to change **the config file**.
 
 ### Host Computer
 
-To develop ROS2 programs on
-
-#### Visual Studio Code
+To develop ROS2 programs on your host/local computer, VS Code ROS Extension was used.
+Please refer to see the following video:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
