@@ -169,6 +169,17 @@ $ sudo -H pip install -U jetson-stats
 $ sudo reboot
 ```
 
+#### GStreamer
+
+Check the version.
+
+```bash
+$ gst-inspect-1.0 --version
+gst-inspect-1.0 version 1.16.3
+GStreamer 1.16.3
+https://launchpad.net/distros/ubuntu/+source/gstreamer1.0
+```
+
 
 ### Host Computer
 
