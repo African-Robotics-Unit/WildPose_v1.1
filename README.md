@@ -180,6 +180,16 @@ GStreamer 1.16.3
 https://launchpad.net/distros/ubuntu/+source/gstreamer1.0
 ```
 
+Run the GStreamer sample of xiAPI after connect a display to the Jetson.
+
+```bash
+$ sudo apt-get install libgtk2.0-dev -y
+$ sudo apt-get install libgstreamer-plugins-base1.0-dev gstreamer1.0-x -y
+$ cd /opt/XIMEA/examples/streamViewer
+$ sudo make GST10=1
+$ ./streamViewer
+```
+
 
 ### Host Computer
 
