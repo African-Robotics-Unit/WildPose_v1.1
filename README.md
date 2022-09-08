@@ -284,7 +284,7 @@ $ sudo apt install -y busybox
 
 Add the following code into your `/etc/rc.local`:
 ```bash
-sh /home/naoya/WildPose_v1.1/src/dji_rs3_pkg/enable_CAN.sh &
+sh /home/naoya/WildPose_v1.1/wildpose/src/dji_rs3_pkg/enable_CAN.sh &
 ```
 
 Check the status of `can0`:
@@ -404,8 +404,8 @@ Recommend Extensions:
 ## Build
 
 ```bash
-$ cd ~/WildPose_v1.1
-$ colcon build --packages-select wildpose_bringup --symlink-install
+$ cd ~/WildPose_v1.1/wildpose
+$ colcon build --symlink-install
 ```
 
 ## Usage
@@ -420,7 +420,7 @@ $ ros2 launch wildpose_bringup wildpose_launch.py
 After that, you can open eCAL Recorder.
 
 ```bash
-$ ecal_rec_gui --config ~/WildPose_v1.1/src/wildpose_bringup/config/config.ecalrec --activate
+$ ecal_rec_gui --config ~/WildPose_v1.1/wildpose/src/wildpose_bringup/config/config.ecalrec --activate
 ```
 
 ## Generate Video
@@ -437,7 +437,7 @@ Convert a rosbag file into a video file:
 
 ```bash
 $ cd src/
-$ ./rosbag2video.py --input_db ~/WildPose_v1.1/rosbags/20221002_192302/20221002_192302_0.db3
+$ ./rosbag2video.py --input_db ~/WildPose_v1.1/wildpose/rosbags/20221002_192302/20221002_192302_0.db3
 ```
 
 ## Replay
