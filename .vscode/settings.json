@@ -1,0 +1,11 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/src/wilpose_bringup",
+    "python.autoComplete.extraPaths": [
+        "/home/naoya/ros2_ws/livox_ros2_driver/install/livox_interfaces/lib/python3.8/site-packages",
+        "/opt/ros/foxy/lib/python3.8/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/naoya/ros2_ws/livox_ros2_driver/install/livox_interfaces/lib/python3.8/site-packages",
+        "/opt/ros/foxy/lib/python3.8/site-packages"
+    ]
+}

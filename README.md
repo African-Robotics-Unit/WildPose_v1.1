@@ -64,11 +64,11 @@ $ ssh-copy-id -i ~/.ssh/wildpose_jetsonagx.pub [user]@[ip address]
 Add the jetson IP address information in `~/.ssh/config`:
 ```
 Host [ip address]
-     HostName [ip address]
-     User naoya
-     IdentityFile ~/.ssh/wildpose_jetsonagx
-     UseKeychain yes
-     AddKeysToAgent yes
+    HostName [ip address]
+    User naoya
+    IdentityFile ~/.ssh/wildpose_jetsonagx
+    UseKeychain yes
+    AddKeysToAgent yes
 ```
 
 #### dotfiles
@@ -103,26 +103,14 @@ Or
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
 
-#### Livox-SDK
-
-This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
-
-```bash
-$ sudo apt install -y cmake
-$ cd ~/Documents
-$ git clone https://github.com/Livox-SDK/Livox-SDK.git
-$ cd Livox-SDK
-$ cd build && cmake ..
-$ make
-$ sudo make install
-```
 
 #### M2S2 for ximea camera driver
 
 ```bash
 $ cd ~/ros2_ws
-$ git clone https://github.com/African-Robotics-Unit/M2S2.git
+$ git clone git@github.com:African-Robotics-Unit/M2S2.git
 $ cd ~/ros2_ws/M2S2
+$ git fetch
 $ git checkout -b ros-drivers
 $ sudo apt install -y ros-foxy-camera-info-manager
 $ colcon build --packages-select ximea_ros2_cam
@@ -144,6 +132,20 @@ To show the ximea camera image data, you are recommended to install [image_view]
 $ sudo apt install -y ros-foxy-image-view
 ```
 
+#### Livox-SDK
+
+This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
+
+```bash
+$ sudo apt install -y cmake
+$ cd ~/Documents
+$ git clone https://github.com/Livox-SDK/Livox-SDK.git
+$ cd Livox-SDK
+$ cd build && cmake ..
+$ make EXTRA_CXXFLAGS=-fPIC
+$ sudo make install
+```
+
 #### Livox ROS2 Driver
 
 This is [the original GitHub repository](https://github.com/Livox-SDK/livox_ros2_driver).
@@ -156,10 +158,42 @@ $ colcon build
 $ source ~/ros2_ws/livox_ros2_driver/install/setup.bash
 ```
 
-Update the config file.
+Add `source ~/ros2_ws/livox_ros2_driver/install/setup.bash` into `~/.bashrc`.
+Don't forget to change **the config file**.
+
+#### jtop
+
+To check the Jetson status, [`jtop`](https://github.com/rbonghi/jetson_stats) should be installed.
+```bash
+$ sudo -H pip install -U jetson-stats
+$ sudo reboot
+```
+
+#### GStreamer
+
+Check the version.
+
+```bash
+$ gst-inspect-1.0 --version
+gst-inspect-1.0 version 1.16.3
+GStreamer 1.16.3
+https://launchpad.net/distros/ubuntu/+source/gstreamer1.0
+```
+
+Run the GStreamer sample of xiAPI after connect a display to the Jetson.
+
+```bash
+$ sudo apt-get install libgtk2.0-dev -y
+$ sudo apt-get install libgstreamer-plugins-base1.0-dev gstreamer1.0-x -y
+$ cd /opt/XIMEA/examples/streamViewer
+$ sudo make GST10=1
+$ ./streamViewer
+```
+
 
 ### Host Computer
 
-### Visual Studio Code
+To develop ROS2 programs on your host/local computer, VS Code ROS Extension was used.
+Please refer to see the following video:
 
-https://youtu.be/VeOj_C6rAF4?t=327
+<iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
