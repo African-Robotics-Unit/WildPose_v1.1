@@ -80,6 +80,11 @@ Set the dotfiles you wanna use (e.g., [Naoya's dotfiles](https://github.com/DenD
 Let's install [ROS2 Foxy](https://docs.ros.org/en/foxy/index.html) following with [the official guide](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html).
 See `setup_scripts/ros2_foxy.sh`.
 
+```bash
+$ cd setup_scripts
+$ ./ros2_foxy.sh
+```
+
 #### The Official Ximea Camera Driver
 
 This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
