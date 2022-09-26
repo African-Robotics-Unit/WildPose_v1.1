@@ -85,39 +85,9 @@ See `setup_scripts/ros2_foxy.sh`.
 This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
 
 ```bash
-$ cd ~; mkdir tmp; cd tmp
-$ wget https://www.ximea.com/support/attachments/download/271/XIMEA_Linux_SP.tgz
-$ tar -xf XIMEA_Linux_SP.tgz
-$ cd package
-$ ./install
-$ sudo gpasswd -a "$(whoami)" plugdev
-$ if [ -f /etc/rc.local ]
-> then
-> sudo sed -i '/^exit/ d' /etc/rc.local
-> else
-> echo '#!/bin/sh -e' | sudo tee /etc/rc.local > /dev/null
-> fi
-$ echo 'echo 0 > /sys/module/usbcore/parameters/usbfs_memory_mb' | sudo tee -a /etc/rc.local > /dev/null
-$ echo 'exit 0' | sudo tee -a /etc/rc.local > /dev/null
-$ sudo chmod a+x /etc/rc.local
-
-# enable controlling of memory frequency by user
-$ echo 'KERNEL=="emc_freq_min", ACTION=="add", GROUP="plugdev", MODE="0660"' | sudo tee /etc/udev/rules.d/99-emc_freq.rules > /dev/null
-
-# Optional: allow user to use realtime priorities
-$ sudo groupadd -fr realtime
-$ echo '*         - rtprio   0' | sudo tee    /etc/security/limits.d/ximea.conf > /dev/null
-$ echo '@realtime - rtprio  81' | sudo tee -a /etc/security/limits.d/ximea.conf > /dev/null
-$ echo '*         - nice     0' | sudo tee -a /etc/security/limits.d/ximea.conf > /dev/null
-$ echo '@realtime - nice   -16' | sudo tee -a /etc/security/limits.d/ximea.conf > /dev/null
-$ sudo gpasswd -a "$(whoami)" realtime
-$ sudo mkdir /etc/systemd/system/user@.service.d
-$ echo '[Service]'                                                                                 | sudo tee    /etc/systemd/system/user@.service.d/cgroup.conf > /dev/null
-$ echo 'PermissionsStartOnly=true'                                                                 | sudo tee -a /etc/systemd/system/user@.service.d/cgroup.conf > /dev/null
-$ echo 'ExecStartPost=-/bin/sh -c "echo 950000 > /sys/fs/cgroup/cpu/user.slice/cpu.rt_runtime_us"' | sudo tee -a /etc/systemd/system/user@.service.d/cgroup.conf > /dev/null
-
-#reboot
-$ sudo reboot
+$ cd setup_scripts/
+$ chmod +x ./xiapi.sh
+$ ./xiapi.sh
 ```
 
 ##### Setup the USB FS Memory Max Allocation to Infinite
@@ -132,13 +102,27 @@ Or
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
 
+#### Livox-SDK
 
-#### M2S2 for ximea camera driver
+This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
+
+```bash
+$ sudo apt install -y cmake
+$ cd ~/Documents
+$ git clone https://github.com/Livox-SDK/Livox-SDK.git
+$ cd Livox-SDK
+$ cd build && cmake ..
+$ make EXTRA_CXXFLAGS=-fPIC
+$ sudo make install
+```
+
+
+#### XIMEA Camera Driver for ROS2
 
 ```bash
 $ mkdir ~/ros2_ws
 $ cd ~/ros2_ws
-$ git clone git@github.com:African-Robotics-Unit/M2S2.git
+$ git clone git@github.com:African-Robotics-Unit/ximea_ros2_cam.git
 $ cd ~/ros2_ws/M2S2
 $ git fetch
 $ git checkout -b ros-drivers
@@ -160,20 +144,6 @@ To show the ximea camera image data, you are recommended to install [image_view]
 
 ```bash
 $ sudo apt install -y ros-foxy-image-view
-```
-
-#### Livox-SDK
-
-This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
-
-```bash
-$ sudo apt install -y cmake
-$ cd ~/Documents
-$ git clone https://github.com/Livox-SDK/Livox-SDK.git
-$ cd Livox-SDK
-$ cd build && cmake ..
-$ make EXTRA_CXXFLAGS=-fPIC
-$ sudo make install
 ```
 
 #### Livox ROS2 Driver
