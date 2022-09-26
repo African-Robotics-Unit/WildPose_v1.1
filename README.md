@@ -136,6 +136,7 @@ Or
 #### M2S2 for ximea camera driver
 
 ```bash
+$ mkdir ~/ros2_ws
 $ cd ~/ros2_ws
 $ git clone git@github.com:African-Robotics-Unit/M2S2.git
 $ cd ~/ros2_ws/M2S2
