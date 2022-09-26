@@ -93,6 +93,7 @@ This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_ca
 $ cd setup_scripts/
 $ chmod +x ./xiapi.sh
 $ ./xiapi.sh
+# reopen the shell
 ```
 
 ##### Setup the USB FS Memory Max Allocation to Infinite
@@ -106,27 +107,6 @@ Or
 
 *Apply to current shell*:
 `echo "0" | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb`
-
-#### Livox-SDK
-
-This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
-
-```bash
-$ sudo apt install -y cmake
-$ cd ~/Documents
-$ git clone https://github.com/Livox-SDK/Livox-SDK.git
-$ cd Livox-SDK
-$ cd build && cmake ..
-$ make EXTRA_CXXFLAGS=-fPIC
-$ sudo make install
-```
-
-#### VSCode
-
-Recommend Extensions:
-- [C/C++ Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)
-- [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
-- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
 #### ROS2 Packages
 
@@ -147,15 +127,40 @@ $ cd ~/ros2_ws/ximea_ros2_cam/
 $ git fetch
 $ git checkout -b develop
 $ sudo apt install -y ros-foxy-camera-info-manager
-$ colcon build --packages-select ximea_ros2_cam
+$ colcon build --packages-select cam_driver_pkg
+$ colcon build --packages-select cam_bringup --symlink-install
+
+# Test the camera driver
+$ ros2 launch cam_bringup cam_test.launch.py
 ```
 
-Then, add `source ~/ros2_ws/M2S2/install/setup.bash` into `~/.bashrc`.
+Then, add `source ~/ros2_ws/ximea_ros2_cam/install/setup.bash` into `~/.bashrc`.
 
 To avoid the [error 45](https://github.com/Fu-physics/Ximea/blob/master/xiPython/v3/ximea/xidefs.py#L49), you have to run the following command.
 
 ```bash
 $ sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb >/dev/null <<<0
+```
+
+#### Livox-SDK
+
+This is [the original GitHub repository](https://github.com/Livox-SDK/Livox-SDK).
+
+```bash
+$ sudo apt install -y cmake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+$ cd ~/Documents
+$ git clone https://github.com/Livox-SDK/Livox-SDK.git
+$ cd Livox-SDK
+```
+
+Edit `Livox-SDK/sdk_core/CMakeLists.txt` by adding `-fPIC`.
+Ref: https://github.com/Livox-SDK/livox_ros2_driver/issues/9#issuecomment-1048578018
+
+```bash
+$ cd build && cmake .. -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+$ make
+$ sudo make install
+$ source /opt/ros/foxy/setup.bash
 ```
 
 #### Livox ROS2 Driver
@@ -181,27 +186,6 @@ $ sudo -H pip install -U jetson-stats
 $ sudo reboot
 ```
 
-#### GStreamer
-
-Check the version.
-
-```bash
-$ gst-inspect-1.0 --version
-gst-inspect-1.0 version 1.16.3
-GStreamer 1.16.3
-https://launchpad.net/distros/ubuntu/+source/gstreamer1.0
-```
-
-Run the GStreamer sample of xiAPI after connect a display to the Jetson.
-
-```bash
-$ sudo apt-get install libgtk2.0-dev -y
-$ sudo apt-get install libgstreamer-plugins-base1.0-dev gstreamer1.0-x -y
-$ cd /opt/XIMEA/examples/streamViewer
-$ sudo make GST10=1
-$ ./streamViewer
-```
-
 
 ### Host Computer
 
@@ -209,3 +193,10 @@ To develop ROS2 programs on your host/local computer, VS Code ROS Extension was 
 Please refer to see the following video:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" f
+
+#### VSCode
+
+Recommend Extensions:
+- [C/C++ Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)
+- [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
