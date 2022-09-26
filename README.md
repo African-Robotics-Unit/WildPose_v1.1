@@ -121,6 +121,21 @@ $ make EXTRA_CXXFLAGS=-fPIC
 $ sudo make install
 ```
 
+#### VSCode
+
+Recommend Extensions:
+- [C/C++ Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)
+- [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+
+#### ROS2 Packages
+
+To show the ximea camera image data, you are recommended to install [image_view](https://index.ros.org/p/image_view/).
+
+```bash
+$ sudo apt install -y ros-foxy-image-view
+$ sudo apt install -y ros-foxy-camera-info-manager
+```
 
 #### XIMEA Camera Driver for ROS2
 
@@ -128,9 +143,9 @@ $ sudo make install
 $ mkdir ~/ros2_ws
 $ cd ~/ros2_ws
 $ git clone git@github.com:African-Robotics-Unit/ximea_ros2_cam.git
-$ cd ~/ros2_ws/M2S2
+$ cd ~/ros2_ws/ximea_ros2_cam/
 $ git fetch
-$ git checkout -b ros-drivers
+$ git checkout -b develop
 $ sudo apt install -y ros-foxy-camera-info-manager
 $ colcon build --packages-select ximea_ros2_cam
 ```
@@ -141,14 +156,6 @@ To avoid the [error 45](https://github.com/Fu-physics/Ximea/blob/master/xiPython
 
 ```bash
 $ sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb >/dev/null <<<0
-```
-
-#### image_view
-
-To show the ximea camera image data, you are recommended to install [image_view](https://index.ros.org/p/image_view/).
-
-```bash
-$ sudo apt install -y ros-foxy-image-view
 ```
 
 #### Livox ROS2 Driver
