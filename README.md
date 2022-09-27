@@ -201,3 +201,18 @@ Recommend Extensions:
 - [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
 - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [ROS2](https://marketplace.visualstudio.com/items?itemName=nonanonno.vscode-ros2)
+
+
+## Usage
+
+```bash
+$ ros2 launch wildpose_bringup wildpose_launch.py
+```
+
+
+## Build
+
+```bash
+$ cd ~/WildPose_v1.1
+$ colcon build --packages-select wildpose_bringup --symlink-install
+```
