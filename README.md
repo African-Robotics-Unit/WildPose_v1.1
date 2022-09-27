@@ -200,3 +200,4 @@ Recommend Extensions:
 - [C/C++ Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)
 - [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
 - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [ROS2](https://marketplace.visualstudio.com/items?itemName=nonanonno.vscode-ros2)
