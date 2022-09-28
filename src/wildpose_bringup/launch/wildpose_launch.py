@@ -1,5 +1,8 @@
 import os
+from datetime import datetime
+
 from ament_index_python.packages import get_package_share_directory
+import launch
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -114,6 +117,9 @@ ximea_cam_parameters = {
 
 
 def generate_launch_description():
+    now = datetime.now()
+
+
     ximea_cam_driver = Node(
         package='cam_driver_pkg',
         executable='ximea_ros2_cam_node',
@@ -130,7 +136,16 @@ def generate_launch_description():
         parameters=livox_ros2_params
     )
 
+    rosbag = launch.actions.ExecuteProcess(
+        cmd=[
+            'ros2', 'bag', 'record', '-a',
+            '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S'))
+        ],
+        output='screen'
+    )
+
     return LaunchDescription([
         ximea_cam_driver,
         # livox_driver,
+        rosbag,
     ])
