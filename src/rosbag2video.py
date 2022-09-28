@@ -10,6 +10,8 @@ import shlex, subprocess
 
 import sqlite3
 from rosidl_runtime_py.utilities import get_message
+import rclpy
+from rclpy.duration import Duration
 from rclpy.serialization import deserialize_message
 
 MJPEG_VIDEO = 1
@@ -19,7 +21,7 @@ VIDEO_CONVERTER_TO_USE = "ffmpeg"   # or you may want to use "avconv"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_db', type=str, required=True, help='The input rosbag file [db3].')
-parser.add_argument('--topic', type=str, default='image_raw', help='Only the images from topic "topic" are used for the video output.')
+parser.add_argument('--topic', type=str, default='/image_raw', help='Only the images from topic "topic" are used for the video output.')
 args = parser.parse_args()
 
 
@@ -54,7 +56,15 @@ class BagFileParser():
 
         rows = self.cursor.execute(query).fetchall()
         # Deserialise all and timestamp them
-        return [(timestamp, deserialize_message(data, self.topic_msg_message[topic_name])) for timestamp,data in rows]
+        return [
+            (timestamp, deserialize_message(data, self.topic_msg_message[topic_name]))
+            for timestamp,data in rows
+        ]
+
+
+def header2timestamp(header):
+    result = int('{}{:09d}'.format(header.stamp.sec, header.stamp.nanosec))
+    return result
 
 
 class RosVideoWriter():
@@ -70,25 +80,25 @@ class RosVideoWriter():
         self.t_video = {}
         self.p_avconv = {}
 
-    def write_output_video(self, msg, topic, t, video_fmt, pix_fmt = ""):
+    def write_output_video(self, msg, topic, t_ns, video_fmt, pix_fmt=""):
         # no data in this topic
         if len(msg.data) == 0:
             return
         # initiate data for this topic
         if not topic in self.t_first:
-            self.t_first[topic] = t # timestamp of first image for this topic
+            self.t_first[topic] = t_ns  # timestamp (nanosec) of first image for this topic
             self.t_video[topic] = 0
             self.t_file[topic] = 0
         # if multiple streams of images will start at different times the resulting video files will not be in sync
         # current offset time we are in the bag file
-        self.t_file[topic] = (t - self.t_first[topic]).to_sec()
+        self.t_file[topic] = t_ns - self.t_first[topic]
         # fill video file up with images until we reache the current offset from the beginning of the bag file
-        while self.t_video[topic] < self.t_file[topic]/self.rate:
+        while self.t_video[topic] < self.t_file[topic] / self.rate:
             if not topic in self.p_avconv:
                 # we have to start a new process for this topic
                 if self.opt_verbose:
-                    print("Initializing pipe for topic", topic, "at time", t.to_sec())
-                if self.opt_out_file=="":
+                    print("Initializing pipe for topic", topic, "at time", t_ns)
+                if self.opt_out_file == "":
                     out_file = self.opt_prefix + str(topic).replace("/", "_")+".mp4"
                 else:
                     out_file = self.opt_out_file
@@ -97,19 +107,18 @@ class RosVideoWriter():
                     print("Using output file ", out_file, " for topic ", topic, ".")
 
                 if video_fmt == MJPEG_VIDEO:
-                    cmd = [VIDEO_CONVERTER_TO_USE, '-v', '1', '-stats', '-r',str(self.fps),'-c','mjpeg','-f','mjpeg','-i','-','-an',out_file]
+                    cmd = [VIDEO_CONVERTER_TO_USE, '-v','1', '-stats', '-r',str(self.fps), '-c','mjpeg', '-f','mjpeg', '-i', '-', '-an',out_file]
                     self.p_avconv[topic] = subprocess.Popen(cmd, stdin=subprocess.PIPE)
                     if self.opt_verbose:
                         print("Using command line:")
                         print(cmd)
                 elif video_fmt == RAWIMAGE_VIDEO:
-                    size = str(msg.width)+"x"+str(msg.height)
-                    cmd = [VIDEO_CONVERTER_TO_USE, '-v', '1', '-stats','-r',str(self.fps),'-f','rawvideo','-s',size,'-pix_fmt', pix_fmt,'-i','-','-an',out_file]
+                    size = f'{msg.width}x{msg.height}'
+                    cmd = [VIDEO_CONVERTER_TO_USE, '-v','1', '-stats', '-r',str(self.fps), '-f','rawvideo', '-s',size, '-pix_fmt',pix_fmt, '-i','-','-an',out_file]
                     self.p_avconv[topic] = subprocess.Popen(cmd, stdin=subprocess.PIPE)
                     if self.opt_verbose:
                         print("Using command line:")
                         print(cmd)
-
                 else:
                     print("Script error, unknown value for argument video_fmt in function write_output_video.")
                     exit(1)
@@ -124,7 +133,7 @@ class RosVideoWriter():
 
         if not self.opt_prefix:
             # create the output in the same folder and name as the bag file minu '.bag'
-            self.opt_prefix = bagfile[:-4]
+            self.opt_prefix = filename[:-4]
 
         # Go through the bag file
         bag = BagFileParser(filename)
@@ -132,9 +141,20 @@ class RosVideoWriter():
             print("Bag opened.")
         # loop over all topics
         topic = args.topic
-        for _, msg in bag.get_messages(topic, limit=3):
-            timestamp = img.header.stamp
-            t = int(str(timestamp.sec) + str(timestamp.nanosec))
+        messages = bag.get_messages(topic) # TODO: limit
+        messages = sorted(  # sort the messages by the timestamp
+            messages,
+            key=lambda x: header2timestamp(x[1].header)
+        )
+        for i in range(1, len(messages)):
+            video_duration_ns = header2timestamp(messages[i][1].header) - header2timestamp(messages[i-1][1].header)
+            print(messages[i][1].header.frame_id, 1 / (video_duration_ns * 1e-9))
+        video_duration_ns = header2timestamp(messages[-1][1].header) - header2timestamp(messages[0][1].header)
+        fps = (len(messages) - 1) / (video_duration_ns * 1e-9)
+        print(len(messages), fps)
+        sys.exit(1)
+        for _, msg in messages:
+            t = header2timestamp(msg.header)    # timestamp (nanosec)
 
             try:
                 if msg.format.find("jpeg")!=-1:
@@ -145,11 +165,11 @@ class RosVideoWriter():
                     elif msg.format.find("16UC1")!=-1:
                         self.write_output_video(msg, topic, t, MJPEG_VIDEO)
                     else:
-                        print('unsupported jpeg format:', msg.format, '.', topic)
+                        print(f'unsupported jpeg format: {msg.format}.{topic}')
             # has no attribute 'format'
             except AttributeError:
                 try:
-                    pix_fmt=None
+                    pix_fmt = None
                     if msg.encoding.find("mono8")!=-1 or msg.encoding.find("8UC1")!=-1:
                         pix_fmt = "gray"
                     elif msg.encoding.find("bgra")!=-1:
@@ -167,34 +187,29 @@ class RosVideoWriter():
                     else:
                         print('unsupported encoding:', msg.encoding, topic)
                         #exit(1)
-                    if pix_fmt:
+                    if pix_fmt is not None:
                         self.write_output_video(msg, topic, t, RAWIMAGE_VIDEO, pix_fmt)
-
                 except AttributeError:
                     # maybe theora packet
                     # theora not supported
                     if self.opt_verbose:
                         print("Could not handle this format. Maybe thoera packet? theora is not supported.")
-                    pass
+
         if self.p_avconv == {}:
-            print("No image topics found in bag:", filename)
-        bag.close()
-
-
+            print(f"No image topics found in bag: {filename}")
 
 
 if __name__ == "__main__":
-    bagfile = BagFileParser(args.input_db)
+    # bagfile = BagFileParser(args.input_db)
 
-    image_msgs = bagfile.get_messages('/image_raw', limit=1)
+    # image_msgs = bagfile.get_messages('/image_raw', limit=1)
 
-    img = image_msgs[0][1]  # sensor_msgs.msg._image.Image
-    timestamp = img.header.stamp
-    print(type(image_msgs[0][0]), image_msgs[0][0])
-    print(type(timestamp.sec), timestamp)
-    print(img.encoding)
+    # img = image_msgs[0][1]  # sensor_msgs.msg._image.Image
+    # timestamp = img.header.stamp
+    # print(type(image_msgs[0][0]), image_msgs[0][0])
+    # print(type(timestamp.sec), timestamp)
+    # print(img.encoding)
 
 
-
-    # videowriter = RosVideoWriter()
-    # videowriter.addBag(args.input_db)
+    videowriter = RosVideoWriter()
+    videowriter.addBag(args.input_db)
