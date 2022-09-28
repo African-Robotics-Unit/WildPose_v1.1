@@ -192,7 +192,8 @@ $ sudo reboot
 To develop ROS2 programs on your host/local computer, VS Code ROS Extension was used.
 Please refer to see the following video:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" f
+<iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 #### VSCode
 
@@ -217,4 +218,13 @@ $ ros2 launch wildpose_bringup wildpose_launch.py
 ```bash
 $ cd ~/WildPose_v1.1
 $ colcon build --packages-select wildpose_bringup --symlink-install
+```
+
+## Generate Video
+
+Install requirements:
+
+```bash
+$ sudo apt install -y ffmpeg
+$ sudo apt install -y python3-roslib python3-rospy python3-sensor-msgs python3-opencv
 ```
