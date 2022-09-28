@@ -205,6 +205,8 @@ Recommend Extensions:
 
 ## Usage
 
+Run WildPose with the following commmand, and the data will be recorded in a rosbag file in `rosbags/`.
+
 ```bash
 $ ros2 launch wildpose_bringup wildpose_launch.py
 ```
