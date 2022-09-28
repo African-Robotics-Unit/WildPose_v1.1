@@ -139,9 +139,10 @@ def generate_launch_description():
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record', '-a',
+            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/launch/reliability_override.yaml',
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S'))
         ],
-        output='screen'
+        output='screen',
     )
 
     return LaunchDescription([

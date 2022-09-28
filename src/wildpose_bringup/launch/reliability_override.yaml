@@ -1,0 +1,4 @@
+/image_raw:
+  durability: volatile
+  history: keep_all
+  reliability: reliable
