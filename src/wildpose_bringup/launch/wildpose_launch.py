@@ -75,10 +75,10 @@ ximea_cam_parameters = {
     # Camera Configuration Parameters Go Here!
     ####################
 
-    # image_transport compressed image parameters
-    'image_transport_compressed_format': "png", # jpg or png
-    'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
-    'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
+    # # image_transport compressed image parameters
+    # 'image_transport_compressed_format': "png", # jpg or png
+    # 'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
+    # 'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
 
     # colour image format
     'format': "XI_RGB24", # BGR 24 bit
@@ -125,7 +125,8 @@ def generate_launch_description():
         executable='ximea_ros2_cam_node',
         name='ximea_cam_publisher',
         output='screen',
-        parameters=[{k: v} for k, v in ximea_cam_parameters.items()]
+        parameters=[{k: v} for k, v in ximea_cam_parameters.items()],
+        # arguments=['--ros-args', '--log-level', 'error']
     )
 
     livox_driver = Node(
@@ -139,8 +140,8 @@ def generate_launch_description():
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record', '-a',
-            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/launch/reliability_override.yaml',
-            '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S'))
+            # '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/launch/reliability_override.yaml',
+            '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
         output='screen',
     )
