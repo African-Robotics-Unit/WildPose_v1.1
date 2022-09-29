@@ -212,7 +212,6 @@ Run WildPose with the following commmand, and the data will be recorded in a ros
 $ ros2 launch wildpose_bringup wildpose_launch.py
 ```
 
-
 ## Build
 
 ```bash

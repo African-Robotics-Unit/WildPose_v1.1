@@ -119,14 +119,12 @@ ximea_cam_parameters = {
 def generate_launch_description():
     now = datetime.now()
 
-
     ximea_cam_driver = Node(
         package='cam_driver_pkg',
         executable='ximea_ros2_cam_node',
         name='ximea_cam_publisher',
         output='screen',
-        parameters=[{k: v} for k, v in ximea_cam_parameters.items()],
-        # arguments=['--ros-args', '--log-level', 'error']
+        parameters=[{k: v} for k, v in ximea_cam_parameters.items()]
     )
 
     livox_driver = Node(
@@ -140,7 +138,7 @@ def generate_launch_description():
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record', '-a',
-            # '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/launch/reliability_override.yaml',
+            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/launch/reliability_override.yaml',
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
         output='screen',
