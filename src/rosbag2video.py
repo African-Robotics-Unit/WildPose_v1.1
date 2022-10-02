@@ -139,6 +139,11 @@ class RosVideoWriter():
         bag = BagFileParser(filename)
         if self.opt_verbose:
             print("Bag opened.")
+
+        # get the real camera parameters
+        messages = bag.get_messages('/xi_image_info')
+        img_info = messages[0][1]   # the info is basically same over all messages
+
         # loop over all topics
         topic = args.topic
         messages = bag.get_messages(topic) # TODO: limit
@@ -148,7 +153,7 @@ class RosVideoWriter():
         )
         for i in range(1, len(messages)):
             video_duration_ns = header2timestamp(messages[i][1].header) - header2timestamp(messages[i-1][1].header)
-            print(messages[i][1].header.frame_id, 1 / (video_duration_ns * 1e-9))
+            # print(messages[i][1].header.frame_id, 1 / (video_duration_ns * 1e-9))
         video_duration_ns = header2timestamp(messages[-1][1].header) - header2timestamp(messages[0][1].header)
         fps = (len(messages) - 1) / (video_duration_ns * 1e-9)
         print(len(messages), fps)
