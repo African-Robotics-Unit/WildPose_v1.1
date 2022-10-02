@@ -231,5 +231,6 @@ $ sudo apt install -y python3-roslib python3-rospy python3-sensor-msgs python3-o
 Convert a rosbag file into a video file:
 
 ```bash
-$ ./rosbag2video.py --input_db ~/WildPose_v1.1/rosbags/20220928_023133/20220928_023133_0.db3
+$ cd src/
+$ ./rosbag2video.py --input_db ~/WildPose_v1.1/rosbags/20221002_192302/20221002_192302_0.db3
 ```
