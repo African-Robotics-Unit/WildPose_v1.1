@@ -96,22 +96,27 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 0,      # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 85,   # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
     'auto_exposure': False,          # auto exposure on or off
     'exposure_time': 1000,           # manual exposure time in microseconds
-    'manual_gain': 9.0,              # manual exposure gain
+    'manual_gain': 5.0,              # manual exposure gain (dB)
     'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1.0: favour only exposure)
     'auto_time_limit': 30000,        # auto exposure time limit in microseconds
     'auto_gain_limit': 2.0,          # auto exposure gain limit
 
     # region of interest
-    'roi_left': 0,      # top left corner in pixels
-    'roi_top': 0,
-    'roi_width': 2048,  # width height in pixels
-    'roi_height': 1088,
+    # MQ022CG-CM: 2048x1088
+    # - 1080p(1920x1080)
+    # - 720p (1280x720)
+    'roi_left': 64,      # top left corner in pixels
+    'roi_top': 4,
+    'roi_width': 1920,  # width height in pixels
+    'roi_height': 1080,
+    # 'roi_width': 1280,  # width height in pixels
+    # 'roi_height': 1024,
     ################### XIMEA camera user-defined parameters end #####################
 }
 
