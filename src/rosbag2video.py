@@ -281,6 +281,7 @@ def rosbag2video(
     bridge = CvBridge()
     t_first = header2timestamp(messages[0][1].header) * 1e-9
     t_video = 0
+    img_cnt = 0
     for _, msg in tqdm(messages):
         t_ns = header2timestamp(msg.header) * 1e-9  # timestamp (nanosec)
         t_file = t_ns - t_first
@@ -331,6 +332,8 @@ def rosbag2video(
                         #exit(1)
                     if pix_fmt is not None:
                         video.write(cv_image)
+                        cv2.imwrite(opt_prefix + f'{img_cnt}.jpg', cv_image)
+                        img_cnt += 1
                 except AttributeError:
                     # maybe theora packet
                     # theora not supported
