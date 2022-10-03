@@ -6,9 +6,9 @@
                 "limitSymbolsToIncludedHeaders": false
             },
             "includePath": [
-                "/home/naoya/ros2_ws/livox_ros2_driver/install/livox_interfaces/include/**",
                 "/opt/ros/foxy/include/**",
-                "/usr/include/**"
+                "/usr/include/**",
+                "${workspaceFolder}/src/**"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-arm64",
