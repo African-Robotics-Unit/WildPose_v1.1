@@ -132,6 +132,16 @@ def generate_launch_description():
         parameters=[{k: v} for k, v in ximea_cam_parameters.items()]
     )
 
+    image_viewer = Node(
+        package='image_view',
+        executable='image_view',
+        name='image_view',
+        output='screen',
+        remappings=[
+            ("image", "/image_raw")
+        ]
+    )
+
     livox_driver = Node(
         package='livox_ros2_driver',
         executable='livox_ros2_driver_node',
@@ -151,6 +161,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         ximea_cam_driver,
+        image_viewer,
         # livox_driver,
         rosbag,
     ])
