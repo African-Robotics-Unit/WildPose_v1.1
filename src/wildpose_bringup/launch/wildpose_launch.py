@@ -1,5 +1,8 @@
 import os
+from datetime import datetime
+
 from ament_index_python.packages import get_package_share_directory
+import launch
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -42,7 +45,7 @@ ximea_cam_parameters = {
     # camera properties (https://github.com/wavelab/ximea_ros_cam)
     'serial_no': "29970951",  # serial number on the backplate
     'cam_name': "ximea_MQ022CG-CM",   # Name of the camera used when saving camera images and snapshots under the directory pointed by image_directory
-    'calib_file': "", # Calibration file used by the camera
+    # 'calib_file': "", # Calibration file used by the camera
     'frame_id': '0',
     'num_cams_in_bus': 1, # Number of USB cameras processed by a single USB controller
     'bw_safetyratio': 1.0,  # Bandwidth safety ratio, a multiplier to the bandwidth allocated for each camera
@@ -72,10 +75,10 @@ ximea_cam_parameters = {
     # Camera Configuration Parameters Go Here!
     ####################
 
-    # image_transport compressed image parameters
-    'image_transport_compressed_format': "png", # jpg or png
-    'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
-    'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
+    # # image_transport compressed image parameters
+    # 'image_transport_compressed_format': "png", # jpg or png
+    # 'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
+    # 'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
 
     # colour image format
     'format': "XI_RGB24", # BGR 24 bit
@@ -93,35 +96,40 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 0,      # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 85,   # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
     'auto_exposure': False,          # auto exposure on or off
-    'exposure_time': 6000,           # manual exposure time in microseconds
-    'manual_gain': 9.0,              # manual exposure gain
+    'exposure_time': 1000,           # manual exposure time in microseconds
+    'manual_gain': 5.0,              # manual exposure gain (dB)
     'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1.0: favour only exposure)
     'auto_time_limit': 30000,        # auto exposure time limit in microseconds
     'auto_gain_limit': 2.0,          # auto exposure gain limit
 
     # region of interest
-    'roi_left': 0,      # top left corner in pixels
-    'roi_top': 0,
-    'roi_width': 1280,  # width height in pixels
-    'roi_height': 1024,
+    # MQ022CG-CM: 2048x1088
+    # - 1080p(1920x1080)
+    # - 720p (1280x720)
+    'roi_left': 64,      # top left corner in pixels
+    'roi_top': 4,
+    'roi_width': 1920,  # width height in pixels
+    'roi_height': 1080,
+    # 'roi_width': 1280,  # width height in pixels
+    # 'roi_height': 1024,
     ################### XIMEA camera user-defined parameters end #####################
 }
 
-ximea_ros2_cam_params = [{k: v} for k, v in ximea_cam_parameters.items()]
-
 
 def generate_launch_description():
+    now = datetime.now()
+
     ximea_cam_driver = Node(
-        package='ximea_ros2_cam',
+        package='cam_driver_pkg',
         executable='ximea_ros2_cam_node',
         name='ximea_cam_publisher',
         output='screen',
-        parameters=ximea_ros2_cam_params
+        parameters=[{k: v} for k, v in ximea_cam_parameters.items()]
     )
 
     livox_driver = Node(
@@ -132,7 +140,17 @@ def generate_launch_description():
         parameters=livox_ros2_params
     )
 
+    rosbag = launch.actions.ExecuteProcess(
+        cmd=[
+            'ros2', 'bag', 'record', '-a',
+            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/launch/reliability_override.yaml',
+            '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
+        ],
+        output='screen',
+    )
+
     return LaunchDescription([
         ximea_cam_driver,
-        livox_driver,
+        # livox_driver,
+        rosbag,
     ])

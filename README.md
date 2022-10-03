@@ -192,7 +192,8 @@ $ sudo reboot
 To develop ROS2 programs on your host/local computer, VS Code ROS Extension was used.
 Please refer to see the following video:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" f
+<iframe width="560" height="315" src="https://www.youtube.com/embed/teA20AjBlG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 #### VSCode
 
@@ -201,3 +202,36 @@ Recommend Extensions:
 - [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
 - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [ROS2](https://marketplace.visualstudio.com/items?itemName=nonanonno.vscode-ros2)
+
+
+## Usage
+
+Run WildPose with the following commmand, and the data will be recorded in a rosbag file in `rosbags/`.
+
+```bash
+$ ros2 launch wildpose_bringup wildpose_launch.py
+```
+
+## Build
+
+```bash
+$ cd ~/WildPose_v1.1
+$ colcon build --packages-select wildpose_bringup --symlink-install
+```
+
+## Generate Video
+
+Install requirements:
+
+```bash
+$ sudo apt install -y ffmpeg
+$ sudo apt install -y python3-roslib python3-rospy python3-sensor-msgs python3-opencv
+$ pip3 install tqdm ffmpeg-python
+```
+
+Convert a rosbag file into a video file:
+
+```bash
+$ cd src/
+$ ./rosbag2video.py --input_db ~/WildPose_v1.1/rosbags/20221002_192302/20221002_192302_0.db3
+```
