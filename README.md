@@ -226,6 +226,7 @@ Install requirements:
 ```bash
 $ sudo apt install -y ffmpeg
 $ sudo apt install -y python3-roslib python3-rospy python3-sensor-msgs python3-opencv
+$ pip3 install tqdm ffmpeg-python
 ```
 
 Convert a rosbag file into a video file:
