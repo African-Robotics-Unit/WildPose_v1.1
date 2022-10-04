@@ -163,6 +163,11 @@ $ sudo make install
 $ source /opt/ros/foxy/setup.bash
 ```
 
+Set the network configuration:
+- IP address: `192.168.1.2`
+- Netmask: `255.255.255.0`
+- Gatway: `192.168.1.1`
+
 #### Livox ROS2 Driver
 
 This is [the original GitHub repository](https://github.com/Livox-SDK/livox_ros2_driver).
