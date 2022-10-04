@@ -19,7 +19,6 @@ cmdline_bd_code = 'livox0000000001'
 
 cur_path = os.path.split(os.path.realpath(__file__))[0] + '/'
 cur_config_path = cur_path + '../config'
-rviz_config_path = os.path.join(cur_config_path, 'livox_lidar.rviz')
 user_config_path = os.path.join(cur_config_path, 'livox_lidar_config.json')
 ################### Livox TELE-15 user-defined parameters end #####################
 
@@ -129,7 +128,8 @@ def generate_launch_description():
         executable='ximea_ros2_cam_node',
         name='ximea_cam_publisher',
         output='screen',
-        parameters=[{k: v} for k, v in ximea_cam_parameters.items()]
+        parameters=[{k: v} for k, v in ximea_cam_parameters.items()],
+        arguments=['--ros-args', '--log-level','ERROR']
     )
 
     image_viewer = Node(
@@ -148,7 +148,8 @@ def generate_launch_description():
         executable='livox_ros2_driver_node',
         name='livox_lidar_publisher',
         output='screen',
-        parameters=livox_ros2_params
+        parameters=livox_ros2_params,
+        arguments=['--ros-args', '--log-level','ERROR']
     )
 
     rosbag = launch.actions.ExecuteProcess(
