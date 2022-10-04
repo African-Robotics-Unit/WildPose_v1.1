@@ -138,7 +138,7 @@ def generate_launch_description():
         name='image_view',
         output='screen',
         remappings=[
-            ("image", "/image_raw")
+            ("/image", "/image_raw")
         ]
     )
 
