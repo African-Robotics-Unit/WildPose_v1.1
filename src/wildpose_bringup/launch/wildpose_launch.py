@@ -164,6 +164,6 @@ def generate_launch_description():
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
-        # livox_driver,
+        livox_driver,
         rosbag,
     ])
