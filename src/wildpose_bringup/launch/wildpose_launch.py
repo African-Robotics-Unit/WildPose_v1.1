@@ -96,7 +96,7 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 85,   # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 100,   # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
@@ -113,8 +113,8 @@ ximea_cam_parameters = {
     # - 720p (1280x720)
     'roi_left': 64,      # top left corner in pixels
     'roi_top': 4,
-    'roi_width': 1920,  # width height in pixels
-    'roi_height': 1080,
+    'roi_width': 1280,  # width height in pixels
+    'roi_height': 720,
     # 'roi_width': 1280,  # width height in pixels
     # 'roi_height': 1024,
     ################### XIMEA camera user-defined parameters end #####################
@@ -139,7 +139,8 @@ def generate_launch_description():
         output='screen',
         remappings=[
             ("/image", "/image_raw")
-        ]
+        ],
+        on_exit=launch.actions.Shutdown()
     )
 
     livox_driver = Node(
@@ -157,6 +158,7 @@ def generate_launch_description():
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
         output='screen',
+        on_exit=launch.actions.Shutdown()
     )
 
     return LaunchDescription([
