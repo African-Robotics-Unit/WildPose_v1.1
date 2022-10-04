@@ -186,6 +186,15 @@ $ sudo -H pip install -U jetson-stats
 $ sudo reboot
 ```
 
+#### Remote Desktop
+
+```bash
+$ sudo apt install -y xrdp
+$ cd
+$ echo "xfce4-session" | tee .xsession
+$ sudo reboot
+```
+
 
 ### Host Computer
 
