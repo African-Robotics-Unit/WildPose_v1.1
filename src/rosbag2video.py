@@ -74,152 +74,6 @@ def header2imgcnt(header):
     return result
 
 
-class RosVideoWriter():
-    def __init__(self, rate=1.0, topic="", output_filename ="", verbose=False):
-        self.opt_topic = topic
-        self.opt_out_file = output_filename
-        self.opt_verbose = verbose
-        self.rate = rate
-        self.opt_prefix = None
-        self.t_first = {}
-        self.t_file = {}
-        self.t_video = {}
-        self.p_avconv = {}
-
-    def write_output_video(self, msg, topic, t_ns, fps, video_fmt, pix_fmt=""):
-        # no data in this topic
-        if len(msg.data) == 0:
-            return
-        # initiate data for this topic
-        if not topic in self.t_first:
-            self.t_first[topic] = t_ns  # timestamp (nanosec) of first image for this topic
-            self.t_video[topic] = 0
-            self.t_file[topic] = 0
-        # if multiple streams of images will start at different times the resulting video files will not be in sync
-        # current offset time we are in the bag file
-        self.t_file[topic] = t_ns - self.t_first[topic]
-        # fill video file up with images until we reache the current offset from the beginning of the bag file
-        while self.t_video[topic] <= self.t_file[topic] / self.rate:
-            if not topic in self.p_avconv.keys():
-                if self.opt_verbose:
-                    print("Initializing pipe for topic", topic, "at time", t_ns)
-
-                # output file path
-                if self.opt_out_file == "":
-                    out_file = self.opt_prefix + str(topic).replace("/", "_")+".mp4"
-                else:
-                    out_file = self.opt_out_file
-                if self.opt_verbose:
-                    print("Using output file ", out_file, " for topic ", topic, ".")
-
-                # write the image
-                if video_fmt == MJPEG_VIDEO:
-                    cmd = [VIDEO_CONVERTER_TO_USE, '-v','1', '-stats', '-r',str(fps), '-c','mjpeg', '-f','mjpeg', '-i', '-', '-an',out_file]
-                    self.p_avconv[topic] = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-                    if self.opt_verbose:
-                        print("Using command line:")
-                        print(cmd)
-                elif video_fmt == RAWIMAGE_VIDEO:
-                    size = f'{msg.width}x{msg.height}'
-                    cmd = [VIDEO_CONVERTER_TO_USE, '-v','1', '-stats', '-r',str(fps), '-f','rawvideo', '-s',size, '-pix_fmt',pix_fmt, '-i','-','-an',out_file]
-                    self.p_avconv[topic] = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-                    if self.opt_verbose:
-                        print("Using command line:")
-                        print(cmd)
-                else:
-                    print("Script error, unknown value for argument video_fmt in function write_output_video.")
-                    exit(1)
-            # send data to ffmpeg process pipe
-            self.p_avconv[topic].stdin.write(msg.data)
-            # next frame time
-            self.t_video[topic] += 1.0 / fps
-
-    def addBag(self, filename: str):
-        bridge = CvBridge()
-        if self.opt_verbose:
-            print("Bagfile: {}".format(filename))
-
-        if not self.opt_prefix:
-            # create the output in the same folder and name as the bag file minu '.bag'
-            self.opt_prefix = filename[:-4]
-
-        # Go through the bag file
-        bag = BagFileParser(filename)
-        if self.opt_verbose:
-            print("Bag opened.")
-
-        # get the real camera parameters
-        messages = bag.get_messages('/xi_image_info')
-        img_info = messages[0][1]   # the info is basically same over all messages
-
-        # get /image_raw messages
-        topic = args.topic
-        messages = bag.get_messages(topic) # TODO: limit
-        messages = sorted(  # sort the messages by the timestamp
-            messages,
-            key=lambda x: header2timestamp(x[1].header)
-        )
-
-        # get FPS
-        video_duration_ns = header2timestamp(messages[-1][1].header) - header2timestamp(messages[0][1].header)
-        n_frames = header2imgcnt(messages[-1][1].header) - header2imgcnt(messages[0][1].header)
-        fps = int(n_frames / (video_duration_ns * 1e-9))
-        if self.opt_verbose:
-            print(f'FPS: {fps}')
-
-        # rendering
-        for _, msg in tqdm(messages):
-            t_ns = header2timestamp(msg.header) * 1e-9  # timestamp (nanosec)
-
-            try:
-                if msg.format.find("jpeg") != -1:
-                    if msg.format.find("8")!=-1 and (msg.format.find("rgb")!=-1 or msg.format.find("bgr")!=-1 or msg.format.find("bgra")!=-1):
-                        self.write_output_video(msg, topic, t_ns, fps, MJPEG_VIDEO)
-                    elif msg.format.find("mono8")!=-1:
-                        self.write_output_video(msg, topic, t_ns, fps, MJPEG_VIDEO)
-                    elif msg.format.find("16UC1")!=-1:
-                        self.write_output_video(msg, topic, t_ns, fps, MJPEG_VIDEO)
-                    else:
-                        print(f'unsupported jpeg format: {msg.format}.{topic}')
-            # has no attribute 'format'
-            except AttributeError:
-                try:
-                    pix_fmt = None
-                    if msg.encoding.find("mono8")!=-1 or msg.encoding.find("8UC1")!=-1:
-                        pix_fmt = "gray"
-                        cv_image = bridge.imgmsg_to_cv2(msg, "bgr8")
-                    elif msg.encoding.find("bgra")!=-1:
-                        pix_fmt = "bgra"
-                        cv_image = bridge.imgmsg_to_cv2(msg, "bgr8")
-                    elif msg.encoding.find("bgr8")!=-1:
-                        pix_fmt = "bgr24"
-                        cv_image = bridge.imgmsg_to_cv2(msg, "bgr8")
-                    elif msg.encoding.find("bggr8")!=-1:
-                        pix_fmt = "bayer_bggr8"
-                        cv_image = bridge.imgmsg_to_cv2(msg, "bayer_bggr8")
-                    elif msg.encoding.find("rggb8")!=-1:
-                        pix_fmt = "bayer_rggb8"
-                        cv_image = bridge.imgmsg_to_cv2(msg, "bayer_rggb8")
-                    elif msg.encoding.find("rgb8")!=-1:
-                        pix_fmt = "rgb24"
-                        cv_image = bridge.imgmsg_to_cv2(msg, "bgr8")
-                    elif msg.encoding.find("16UC1")!=-1:
-                        pix_fmt = "gray16le"
-                    else:
-                        print('unsupported encoding:', msg.encoding, topic)
-                        #exit(1)
-                    if pix_fmt is not None:
-                        self.write_output_video(msg, topic, t_ns, fps, RAWIMAGE_VIDEO, pix_fmt)
-                except AttributeError:
-                    # maybe theora packet
-                    # theora not supported
-                    if self.opt_verbose:
-                        print("Could not handle this format. Maybe thoera packet? theora is not supported.")
-
-        if self.p_avconv == {}:
-            print(f"No image topics found in bag: {filename}")
-
-
 def rosbag2video(
     filename: str,
     topic: str = "",
@@ -259,6 +113,8 @@ def rosbag2video(
         messages,
         key=lambda x: header2timestamp(x[1].header)
     )
+    for _, msg in messages:
+        print(msg.header.frame_id)
 
     # get FPS
     video_duration_ns = header2timestamp(messages[-1][1].header) - header2timestamp(messages[0][1].header)
@@ -332,7 +188,7 @@ def rosbag2video(
                         #exit(1)
                     if pix_fmt is not None:
                         video.write(cv_image)
-                        cv2.imwrite(opt_prefix + f'{img_cnt}.jpg', cv_image)
+                        # cv2.imwrite(opt_prefix + f'{img_cnt}.jpg', cv_image)
                         img_cnt += 1
                 except AttributeError:
                     # maybe theora packet
@@ -356,6 +212,3 @@ if __name__ == "__main__":
     # print(img.encoding)
 
     rosbag2video(args.input_db, args.topic, verbose=True)
-
-    # videowriter = RosVideoWriter(verbose=True)
-    # videowriter.addBag(args.input_db)
