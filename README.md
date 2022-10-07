@@ -191,6 +191,16 @@ $ sudo -H pip install -U jetson-stats
 $ sudo reboot
 ```
 
+#### CAN bus setting
+
+```bash
+$ sudo apt install -y busybox
+```
+
+References:
+- [Enabling CAN on Nvidia Jetson Xavier Developer Kit](https://medium.com/@ramin.nabati/enabling-can-on-nvidia-jetson-xavier-developer-kit-aaaa3c4d99c9)
+- [hmxf/can_xavier -- GitHub](https://github.com/hmxf/can_xavier)
+
 #### Remote Desktop
 
 ```bash
