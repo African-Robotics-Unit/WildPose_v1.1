@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'dji_rs3_node = dji_rs3_pkg.dji_rs3_node:main'
         ],
     },
 )
