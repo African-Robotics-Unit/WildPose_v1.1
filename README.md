@@ -197,6 +197,11 @@ $ sudo reboot
 $ sudo apt install -y busybox
 ```
 
+Add the following code into your `/etc/rc.local`:
+```bash
+sh /home/naoya/WildPose_v1.1/src/dji_rs3_pkg/enable_CAN.sh &
+```
+
 References:
 - [Enabling CAN on Nvidia Jetson Xavier Developer Kit](https://medium.com/@ramin.nabati/enabling-can-on-nvidia-jetson-xavier-developer-kit-aaaa3c4d99c9)
 - [hmxf/can_xavier -- GitHub](https://github.com/hmxf/can_xavier)
