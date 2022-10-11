@@ -235,6 +235,13 @@ $ sudo apt-get install -y jstest-gtk
 $ jstest /dev/input/js0
 ```
 
+Install `joy_linux` package.
+
+```bash
+$ sudo apt install -y ros-foxy-joy-linux
+$ ros2 run joy_linux joy_linux_node --ros-args -p dev_name:="Wireless Gamepad F710"
+```
+
 
 ### Host Computer
 
