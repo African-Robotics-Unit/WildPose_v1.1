@@ -4,7 +4,7 @@ from rclpy.node import Node
 
 import can
 import struct
-from .SDKCRC import calc_crc
+# from .SDKCRC import calc_crc
 
 
 BITRATE = 1000000
@@ -86,13 +86,30 @@ class DjiRs3Node(Node):
         # cmd_data = ':'.join(pack_data)
         # cmd = combine(cmd_type='03', cmd_set='0E', cmd_id='00', data=cmd_data)
         # self.get_logger().info(f'cmd: {cmd}')
-        
+              
+
+        # $ cansend can0 223#AA1A000300000000 & \
+        # cansend can0 223#2211A2420E002000 & \
+        # cansend can0 223#3000400001147B40 & \
+        # cansend can0 223#97BE
         msg = can.Message(
-            arbitration_id=0x01, 
-            is_extended_id=True,
+            arbitration_id=0x223, 
+            is_extended_id=False,
             is_rx=False,
-            data=bytearray([0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x7A, 0x1E, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x84, 0x03, 0x01, 0x14, 0x88, 0x08, 0x1C, 0xA9])
+            data=bytearray([
+                0xAA, # SOF
+                0x1A, 0x00, # Ver/Length
+                0x03, # CmdType
+                0x00, # ENC
+                0x00, 0x00, 0x00, # RES
+                0x22, 0x11, # SEQ
+                0xA2, 0x42, # CRC-16
+                0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, # DATA 
+                0x7B, 0x40, 0x97, 0xBE # CRC-32
+            ])
+            
         )
+  
         self.get_logger().info(f'msg: {msg}')
         self.bus.send(msg, timeout=0.5)
 
