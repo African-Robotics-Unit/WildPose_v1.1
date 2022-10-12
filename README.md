@@ -268,6 +268,7 @@ Then, you should reboot the jetson.
 
 References
 - [Jetson Nano – UART](https://jetsonhacks.com/2019/10/10/jetson-nano-uart/)
+- [Permission denied when try connect on /dev/ttyTHS1](https://forums.developer.nvidia.com/t/permission-denied-when-try-connect-on-dev-ttyths1/210479/10)
 
 
 ### Host Computer
