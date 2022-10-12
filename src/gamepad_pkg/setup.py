@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "f710_node = gamepad_pkg.f710_node:main",
+            # "f710_node = gamepad_pkg.f710_node:main",
         ],
     },
 )
