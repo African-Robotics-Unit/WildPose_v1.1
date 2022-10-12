@@ -242,6 +242,25 @@ $ sudo apt install -y ros-foxy-joy-linux
 $ ros2 run joy_linux joy_linux_node --ros-args -p dev_name:="Wireless Gamepad F710"
 ```
 
+#### Motor Controller with Teensy 4.0
+
+```bash
+$ sudo apt-get install -y python3-serial
+```
+
+```bash
+$ systemctl stop nvgetty
+$ systemctl disable nvgetty
+$ udevadm trigger
+```
+
+```bash
+$ sudo usermod -aG dialout ${USER}
+```
+
+References
+- [Jetson Nano – UART](https://jetsonhacks.com/2019/10/10/jetson-nano-uart/)
+
 
 ### Host Computer
 
