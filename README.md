@@ -260,19 +260,19 @@ Recommend Extensions:
 - [ROS2](https://marketplace.visualstudio.com/items?itemName=nonanonno.vscode-ros2)
 
 
+## Build
+
+```bash
+$ cd ~/WildPose_v1.1
+$ colcon build --packages-select wildpose_bringup --symlink-install
+```
+
 ## Usage
 
 Run WildPose with the following commmand, and the data will be recorded in a rosbag file in `rosbags/`.
 
 ```bash
 $ ros2 launch wildpose_bringup wildpose_launch.py
-```
-
-## Build
-
-```bash
-$ cd ~/WildPose_v1.1
-$ colcon build --packages-select wildpose_bringup --symlink-install
 ```
 
 ## Generate Video
