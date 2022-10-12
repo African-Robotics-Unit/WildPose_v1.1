@@ -27,14 +27,6 @@ class MotorControlNode(Node):
             data = self.serial_port_.readline()
             if data is not None:
                 self.get_logger().info(data.decode())
-            # # if we get a carriage return, add a line feed too
-            # # \r is a carriage return; \n is a line feed
-            # # This is to help the tty program on the other end 
-            # # Windows is \r\n for carriage return, line feed
-            # # Macintosh and Linux use \n
-            # if data == "\r".encode():
-            #     # For Windows boxen on the other end
-            #     self.serial_port_.write("\n".encode())
             
     def __del__(self):
         self.serial_port_.close()
