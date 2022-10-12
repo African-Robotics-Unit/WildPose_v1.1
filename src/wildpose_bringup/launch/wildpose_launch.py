@@ -166,6 +166,15 @@ def generate_launch_description():
         ]
     )
 
+    motor_control_node = Node(
+        package='motor_controller_pkg',
+        executable='motor_control_node',
+        name='motor_control_node',
+        arguments=['--ros-args',
+            '--log-level','INFO'
+        ]
+    )
+
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record', 
@@ -183,5 +192,6 @@ def generate_launch_description():
         image_viewer,
         livox_driver,
         gamepad_node,
+        motor_control_node,
         rosbag,
     ])
