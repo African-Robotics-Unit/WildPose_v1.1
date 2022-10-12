@@ -210,6 +210,38 @@ $ echo "xfce4-session" | tee .xsession
 $ sudo reboot
 ```
 
+#### Logitech Wireless Gamepad F710
+
+Mode `X`.
+
+```bash
+$ usb-devices
+...
+T:  Bus=01 Lev=02 Prnt=03 Port=02 Cnt=01 Dev#= 10 Spd=12  MxCh= 0
+D:  Ver= 2.00 Cls=ff(vend.) Sub=ff Prot=ff MxPS= 8 #Cfgs=  1
+P:  Vendor=046d ProdID=c21f Rev=03.05
+S:  Manufacturer=Logitech
+S:  Product=Wireless Gamepad F710
+S:  SerialNumber=3DA39E79
+C:  #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=98mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=5d Prot=01 Driver=xpad
+...
+```
+
+Check the connection between Jetson and F710.
+
+```bash
+$ sudo apt-get install -y jstest-gtk
+$ jstest /dev/input/js0
+```
+
+Install `joy_linux` package.
+
+```bash
+$ sudo apt install -y ros-foxy-joy-linux
+$ ros2 run joy_linux joy_linux_node --ros-args -p dev_name:="Wireless Gamepad F710"
+```
+
 
 ### Host Computer
 
@@ -228,19 +260,19 @@ Recommend Extensions:
 - [ROS2](https://marketplace.visualstudio.com/items?itemName=nonanonno.vscode-ros2)
 
 
+## Build
+
+```bash
+$ cd ~/WildPose_v1.1
+$ colcon build --packages-select wildpose_bringup --symlink-install
+```
+
 ## Usage
 
 Run WildPose with the following commmand, and the data will be recorded in a rosbag file in `rosbags/`.
 
 ```bash
 $ ros2 launch wildpose_bringup wildpose_launch.py
-```
-
-## Build
-
-```bash
-$ cd ~/WildPose_v1.1
-$ colcon build --packages-select wildpose_bringup --symlink-install
 ```
 
 ## Generate Video

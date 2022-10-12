@@ -154,6 +154,18 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level','ERROR']
     )
 
+    gamepad_node = Node(
+        package='joy_linux',
+        executable='joy_linux_node',
+        name='gamepad_f710_publisher',
+        parameters=[
+            {'dev_name', 'Wireless Gamepad F710'}       
+        ],
+        arguments=['--ros-args',
+            '--log-level','ERROR'
+        ]
+    )
+
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record', 
@@ -170,5 +182,6 @@ def generate_launch_description():
         ximea_cam_driver,
         image_viewer,
         livox_driver,
+        gamepad_node,
         rosbag,
     ])
