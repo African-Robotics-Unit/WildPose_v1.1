@@ -242,6 +242,34 @@ $ sudo apt install -y ros-foxy-joy-linux
 $ ros2 run joy_linux joy_linux_node --ros-args -p dev_name:="Wireless Gamepad F710"
 ```
 
+#### Motor Controller with Teensy 4.0
+
+Install the preprequirements.
+
+```bash
+$ sudo apt-get install -y python3-serial
+```
+
+TTY setting.
+
+```bash
+$ systemctl stop nvgetty
+$ systemctl disable nvgetty
+$ udevadm trigger
+```
+
+Add an user group, `dialout`, to use tty ports without sudo.
+
+```bash
+$ sudo usermod -aG dialout ${USER}
+```
+
+Then, you should reboot the jetson.
+
+References
+- [Jetson Nano – UART](https://jetsonhacks.com/2019/10/10/jetson-nano-uart/)
+- [Permission denied when try connect on /dev/ttyTHS1](https://forums.developer.nvidia.com/t/permission-denied-when-try-connect-on-dev-ttyths1/210479/10)
+
 
 ### Host Computer
 
