@@ -174,8 +174,12 @@ def generate_launch_description():
             # '--polling-interval', '0',
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
+<<<<<<< HEAD
         output='screen',
         on_exit=launch.actions.Shutdown()
+=======
+        shell=True
+>>>>>>> feature/interface
     )
 
     return LaunchDescription([
