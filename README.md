@@ -191,6 +191,44 @@ $ sudo -H pip install -U jetson-stats
 $ sudo reboot
 ```
 
+#### Wi-Fi
+
+You should get a connection listing similar to something like this:
+
+```bash
+$ nmcli d
+DEVICE         TYPE      STATE         CONNECTION
+wlan0          wifi      connected     AirPort41594
+docker0        bridge    connected     docker0
+p2p-dev-wlan0  wifi-p2p  disconnected  --
+eth0           ethernet  unavailable   --
+...
+```
+
+Next we will make sure that the WiFi module is turned on by typing the following command:
+
+```bash
+$ nmcli r wifi on
+```
+
+Now we can scan and list off all visible WiFi networks available to us by typing the following command:
+
+```bash
+$ nmcli d wifi list
+IN-USE  BSSID              SSID          MODE   CHAN  RATE        SIGNAL  BARS  SECURITY
+*       34:76:C5:37:A2:7A  AirPort41594  Infra  6     130 Mbit/s  87      ▂▄▆█  WPA1 WPA2
+...
+```
+
+To connect to a given network make sure you have its SSID and password ready. Both are case sensitive! Type the following command with `[SSID]` being your SSID and `[PASSWORD]` being the password for that network:
+
+```bash
+$ nmcli d wifi connect [SSID] password [PASSWORD]
+```
+
+If all goes according to plan, you should get a connection confirmation!
+
+
 #### CAN bus setting
 
 ```bash
