@@ -159,7 +159,7 @@ def generate_launch_description():
         executable='joy_linux_node',
         name='gamepad_f710_publisher',
         parameters=[
-            {'dev_name', 'Wireless Gamepad F710'}       
+            {'dev_name', 'Wireless Gamepad F710'}
         ],
         arguments=['--ros-args',
             '--log-level','ERROR'
@@ -177,18 +177,14 @@ def generate_launch_description():
 
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
-            'ros2', 'bag', 'record', 
+            'ros2', 'bag', 'record',
             '/xi_image_info', '/image_raw', '/livox/lidar', '/livox/imu',
             '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/config/reliability_override.yaml',
             # '--polling-interval', '0',
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
-<<<<<<< HEAD
         output='screen',
         on_exit=launch.actions.Shutdown()
-=======
-        shell=True
->>>>>>> feature/interface
     )
 
     return LaunchDescription([
