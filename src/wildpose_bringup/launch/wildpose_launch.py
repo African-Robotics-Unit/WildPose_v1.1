@@ -67,7 +67,7 @@ ximea_cam_parameters = {
 
     'enable_diagnostics': True,
     'data_age_max': 0.1,
-    'pub_frequency': 10.0,
+    'pub_frequency': 100.0,
     'pub_frequency_tolerance': 1.0,
 
     ####################
@@ -95,7 +95,7 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 60,   # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 100,  # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
@@ -126,9 +126,9 @@ def generate_launch_description():
     now = datetime.now()
 
     ximea_cam_driver = Node(
-        package='cam_driver_pkg',
+        package='ximea_ros2_cam',
         executable='ximea_ros2_cam_node',
-        name='ximea_cam_publisher',
+        name='ximea_cam_node',
         output='screen',
         parameters=[{k: v} for k, v in ximea_cam_parameters.items()],
         arguments=['--ros-args', '--log-level','ERROR']
@@ -190,8 +190,8 @@ def generate_launch_description():
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
-        livox_driver,
-        gamepad_node,
-        motor_control_node,
-        rosbag,
+        # livox_driver,
+        # gamepad_node,
+        # motor_control_node,
+        # rosbag,
     ])

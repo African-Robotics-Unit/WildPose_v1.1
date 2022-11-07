@@ -94,11 +94,11 @@ Install [eCAL](https://github.com/eclipse-ecal/ecal).
 $ sudo add-apt-repository ppa:ecal/ecal-latest
 $ sudo apt-get update
 $ sudo apt-get install -y ecal
-$ sudo apt-get install -y libprotobuf-dev protobuf-compiler
 ```
 
 <!-- Setup [rosidl_typesupport_protobuf](https://github.com/eclipse-ecal/rosidl_typesupport_protobuf).
 ```bash
+$ sudo apt-get install -y libprotobuf-dev protobuf-compiler
 $ cd ~/ros2_ws
 $ git clone https://github.com/eclipse-ecal/rosidl_typesupport_protobuf.git
 $ cd ~/ros2_ws/rosidl_typesupport_protobuf
@@ -164,7 +164,7 @@ $ cd ~/ros2_ws/ximea_ros2_cam/
 $ git fetch
 $ git checkout -b develop
 $ sudo apt install -y ros-foxy-camera-info-manager
-$ colcon build --packages-select cam_driver_pkg
+$ colcon build
 $ colcon build --packages-select cam_bringup --symlink-install
 
 # Test the camera driver
