@@ -85,6 +85,38 @@ $ cd setup_scripts
 $ ./ros2_foxy.sh
 ```
 
+#### rmw_ecal
+
+Update the ROS middleware for fast recording ros bag files.
+
+Install [eCAL](https://github.com/eclipse-ecal/ecal).
+```bash
+$ sudo add-apt-repository ppa:ecal/ecal-latest
+$ sudo apt-get update
+$ sudo apt-get install -y ecal
+$ sudo apt-get install -y libprotobuf-dev protobuf-compiler
+```
+
+Setup [rosidl_typesupport_protobuf](https://github.com/eclipse-ecal/rosidl_typesupport_protobuf).
+```bash
+$ cd ~/ros2_ws
+$ git clone https://github.com/eclipse-ecal/rosidl_typesupport_protobuf.git
+$ cd ~/ros2_ws/rosidl_typesupport_protobuf
+$ colcon build
+$ vim ~/.bashrc   # add "source ~/ros2_ws/rosidl_typesupport_protobuf/install/setup.bash"
+$ source ~/.bashrc
+```
+
+Clone latest release of this repository into your ROS2 workspace.
+```bash
+$ cd ~/ros2_ws
+$ git clone https://github.com/eclipse-ecal/rmw_ecal.git
+$ cd ~/ros2_ws/rmw_ecal
+$ colcon build
+$ vim ~/.bashrc   # add "source ~/ros2_ws/rmw_ecal/install/setup.bash"
+$ source ~/.bashrc
+```
+
 #### The Official Ximea Camera Driver
 
 This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
