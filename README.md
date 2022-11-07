@@ -107,7 +107,7 @@ $ vim ~/.bashrc   # add "source ~/ros2_ws/rosidl_typesupport_protobuf/install/se
 $ source ~/.bashrc
 ```
 
-Clone latest release of this repository into your ROS2 workspace.
+Clone latest release of this repository into your ROS2 workspace and build it.
 ```bash
 $ cd ~/ros2_ws
 $ git clone https://github.com/eclipse-ecal/rmw_ecal.git
@@ -115,6 +115,11 @@ $ cd ~/ros2_ws/rmw_ecal
 $ colcon build
 $ vim ~/.bashrc   # add "source ~/ros2_ws/rmw_ecal/install/setup.bash"
 $ source ~/.bashrc
+```
+
+Add the following line into your `.bashrc`.
+```bash
+export RMW_IMPLEMENTATION=rmw_ecal_dynamic_cpp
 ```
 
 #### The Official Ximea Camera Driver
