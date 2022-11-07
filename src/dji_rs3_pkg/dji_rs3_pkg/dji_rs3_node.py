@@ -79,7 +79,7 @@ class DjiRs3Node(Node):
         # )
 
         hex_data = struct.pack(
-            '<3h2B',
+            '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
             0, # yaw,
             0, # roll,
             90 * 10, # pitch,
@@ -88,7 +88,12 @@ class DjiRs3Node(Node):
         )
         pack_data = ['{:02X}'.format(i) for i in hex_data]
         cmd_data = ':'.join(pack_data)
-        send_data = command_generator(cmd_type='03', cmd_set='0E', cmd_id='00', data=cmd_data)
+        send_data = command_generator(
+            cmd_type='03',
+            cmd_set='0E',
+            cmd_id='00',
+            data=cmd_data
+        )
         msg = can.Message(
             arbitration_id=self.send_id_,
             is_extended_id=False,
