@@ -97,7 +97,7 @@ $ sudo apt-get install -y ecal
 $ sudo apt-get install -y libprotobuf-dev protobuf-compiler
 ```
 
-Setup [rosidl_typesupport_protobuf](https://github.com/eclipse-ecal/rosidl_typesupport_protobuf).
+<!-- Setup [rosidl_typesupport_protobuf](https://github.com/eclipse-ecal/rosidl_typesupport_protobuf).
 ```bash
 $ cd ~/ros2_ws
 $ git clone https://github.com/eclipse-ecal/rosidl_typesupport_protobuf.git
@@ -105,14 +105,14 @@ $ cd ~/ros2_ws/rosidl_typesupport_protobuf
 $ colcon build
 $ vim ~/.bashrc   # add "source ~/ros2_ws/rosidl_typesupport_protobuf/install/setup.bash"
 $ source ~/.bashrc
-```
+``` -->
 
 Clone latest release of this repository into your ROS2 workspace and build it.
 ```bash
 $ cd ~/ros2_ws
 $ git clone https://github.com/eclipse-ecal/rmw_ecal.git
 $ cd ~/ros2_ws/rmw_ecal
-$ colcon build
+$ colcon build --packages-skip rmw_ecal_proto_cpp
 $ vim ~/.bashrc   # add "source ~/ros2_ws/rmw_ecal/install/setup.bash"
 $ source ~/.bashrc
 ```
