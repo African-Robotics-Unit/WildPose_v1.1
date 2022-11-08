@@ -74,10 +74,10 @@ ximea_cam_parameters = {
     # Camera Configuration Parameters Go Here!
     ####################
 
-    # # image_transport compressed image parameters
-    # 'image_transport_compressed_format': "png", # jpg or png
-    # 'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
-    # 'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
+    # image_transport compressed image parameters
+    'image_transport_compressed_format': "png", # jpg or png
+    'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
+    'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
 
     # colour image format
     'format': "XI_RGB24", # BGR 24 bit
@@ -142,6 +142,9 @@ def generate_launch_description():
         remappings=[
             ("/image", "/image_raw"),
         ],
+        # parameters=[
+        #     {'image_transport': 'compressed'}
+        # ],
         on_exit=launch.actions.Shutdown()
     )
 

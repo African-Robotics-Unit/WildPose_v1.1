@@ -151,6 +151,9 @@ To show the ximea camera image data, you are recommended to install [image_view]
 
 ```bash
 $ sudo apt install -y ros-foxy-image-view
+$ sudo apt install -y ros-foxy-rqt-image-view
+$ sudo apt install -y ros-foxy-rqt-reconfigure
+$ sudo apt install -y ros-foxy-image-transport-plugins
 $ sudo apt install -y ros-foxy-camera-info-manager
 ```
 
