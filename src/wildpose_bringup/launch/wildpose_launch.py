@@ -81,7 +81,8 @@ ximea_cam_parameters = {
 
     # colour image format
     'format': "XI_RGB24", # BGR 24 bit
-
+    # 'format': "XI_RAW8",
+    
     # camera coloring
     # white balance mode: 0 - none, 1 - use coefficients, 2: auto
     'white_balance_mode': 2,
