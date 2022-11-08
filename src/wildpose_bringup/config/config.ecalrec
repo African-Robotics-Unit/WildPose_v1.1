@@ -1,0 +1,26 @@
+<ecalRecServerConfig config_version="3">
+    <rootDirectory>$TARGET{OSSELECT WIN "C:" LINUX "$TARGET{ENV HOME}"}/ecal_meas</rootDirectory>
+    <measurementName>$HOST{TIME}_measurement</measurementName>
+    <maxFileSizeMib>1000</maxFileSizeMib>
+    <description>Measurement started by: $HOST{USERNAME}@$HOST{HOSTNAME}
+Date: $HOST{TIME %F %R}
+</description>
+    <recorders>
+        <client>
+            <name>ubuntu</name>
+            <hostFilter/>
+            <enabledAddons/>
+        </client>
+    </recorders>
+    <preBufferEnabled>false</preBufferEnabled>
+    <preBufferLengthSecs>0.000000</preBufferLengthSecs>
+    <useBuiltInRecorder>true</useBuiltInRecorder>
+    <topicList type="whitelist">
+        <topic>rt/camera_info</topic>
+        <topic>rt/image_compressed</topic>
+        <topic>rt/image_count</topic>
+    </topicList>
+    <uploadConfig protocol="internal">
+        <deleteAfterUpload>false</deleteAfterUpload>
+    </uploadConfig>
+</ecalRecServerConfig>

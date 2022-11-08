@@ -381,6 +381,12 @@ Run WildPose with the following commmand, and the data will be recorded in a ros
 $ ros2 launch wildpose_bringup wildpose_launch.py
 ```
 
+After that, you can open eCAL Recorder.
+
+```bash
+$ ecal_rec_gui --config ~/WildPose_v1.1/src/wildpose_bringup/config/config.ecalrec
+```
+
 ## Generate Video
 
 Install requirements:
