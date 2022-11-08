@@ -67,21 +67,22 @@ ximea_cam_parameters = {
 
     'enable_diagnostics': True,
     'data_age_max': 0.1,
-    'pub_frequency': 10.0,
+    'pub_frequency': 100.0,
     'pub_frequency_tolerance': 1.0,
 
     ####################
     # Camera Configuration Parameters Go Here!
     ####################
 
-    # # image_transport compressed image parameters
-    # 'image_transport_compressed_format': "png", # jpg or png
-    # 'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
-    # 'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
+    # image_transport compressed image parameters
+    'image_transport_compressed_format': "png", # jpg or png
+    'image_transport_compressed_jpeg_quality': 100, # 1 to 100 (1: min quality)
+    'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
 
     # colour image format
     'format': "XI_RGB24", # BGR 24 bit
-
+    # 'format': "XI_RAW8",
+    
     # camera coloring
     # white balance mode: 0 - none, 1 - use coefficients, 2: auto
     'white_balance_mode': 2,
@@ -95,7 +96,7 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 60,   # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 100,  # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
@@ -126,9 +127,9 @@ def generate_launch_description():
     now = datetime.now()
 
     ximea_cam_driver = Node(
-        package='cam_driver_pkg',
+        package='ximea_ros2_cam',
         executable='ximea_ros2_cam_node',
-        name='ximea_cam_publisher',
+        name='ximea_cam_node',
         output='screen',
         parameters=[{k: v} for k, v in ximea_cam_parameters.items()],
         arguments=['--ros-args', '--log-level','ERROR']
@@ -142,6 +143,9 @@ def generate_launch_description():
         remappings=[
             ("/image", "/image_raw"),
         ],
+        # parameters=[
+        #     {'image_transport': 'compressed'}
+        # ],
         on_exit=launch.actions.Shutdown()
     )
 
@@ -159,7 +163,7 @@ def generate_launch_description():
         executable='joy_linux_node',
         name='gamepad_f710_publisher',
         parameters=[
-            {'dev_name', 'Wireless Gamepad F710'}       
+            {'dev_name', 'Wireless Gamepad F710'}
         ],
         arguments=['--ros-args',
             '--log-level','ERROR'
@@ -177,25 +181,21 @@ def generate_launch_description():
 
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
-            'ros2', 'bag', 'record', 
+            'ros2', 'bag', 'record',
             '/xi_image_info', '/image_raw', '/livox/lidar', '/livox/imu',
             '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/config/reliability_override.yaml',
             # '--polling-interval', '0',
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
-<<<<<<< HEAD
         output='screen',
         on_exit=launch.actions.Shutdown()
-=======
-        shell=True
->>>>>>> feature/interface
     )
 
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
-        livox_driver,
-        gamepad_node,
-        motor_control_node,
-        rosbag,
+        # livox_driver,
+        # gamepad_node,
+        # motor_control_node,
+        # rosbag,
     ])

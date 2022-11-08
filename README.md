@@ -85,6 +85,43 @@ $ cd setup_scripts
 $ ./ros2_foxy.sh
 ```
 
+#### rmw_ecal
+
+Update the ROS middleware for fast recording ros bag files.
+
+Install [eCAL](https://github.com/eclipse-ecal/ecal).
+```bash
+$ sudo add-apt-repository ppa:ecal/ecal-latest
+$ sudo apt-get update
+$ sudo apt-get install -y ecal
+```
+
+<!-- Setup [rosidl_typesupport_protobuf](https://github.com/eclipse-ecal/rosidl_typesupport_protobuf).
+```bash
+$ sudo apt-get install -y libprotobuf-dev protobuf-compiler
+$ cd ~/ros2_ws
+$ git clone https://github.com/eclipse-ecal/rosidl_typesupport_protobuf.git
+$ cd ~/ros2_ws/rosidl_typesupport_protobuf
+$ colcon build
+$ vim ~/.bashrc   # add "source ~/ros2_ws/rosidl_typesupport_protobuf/install/setup.bash"
+$ source ~/.bashrc
+``` -->
+
+Clone latest release of this repository into your ROS2 workspace and build it.
+```bash
+$ cd ~/ros2_ws
+$ git clone https://github.com/eclipse-ecal/rmw_ecal.git
+$ cd ~/ros2_ws/rmw_ecal
+$ colcon build --packages-skip rmw_ecal_proto_cpp
+$ vim ~/.bashrc   # add "source ~/ros2_ws/rmw_ecal/install/setup.bash"
+$ source ~/.bashrc
+```
+
+Add the following line into your `.bashrc`.
+```bash
+export RMW_IMPLEMENTATION=rmw_ecal_dynamic_cpp
+```
+
 #### The Official Ximea Camera Driver
 
 This is [the original GitHub repository](https://github.com/wavelab/ximea_ros_cam) and [the Guide for Jetson](https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package).
@@ -114,6 +151,9 @@ To show the ximea camera image data, you are recommended to install [image_view]
 
 ```bash
 $ sudo apt install -y ros-foxy-image-view
+$ sudo apt install -y ros-foxy-rqt-image-view
+$ sudo apt install -y ros-foxy-rqt-reconfigure
+$ sudo apt install -y ros-foxy-image-transport-plugins
 $ sudo apt install -y ros-foxy-camera-info-manager
 ```
 
@@ -127,7 +167,7 @@ $ cd ~/ros2_ws/ximea_ros2_cam/
 $ git fetch
 $ git checkout -b develop
 $ sudo apt install -y ros-foxy-camera-info-manager
-$ colcon build --packages-select cam_driver_pkg
+$ colcon build
 $ colcon build --packages-select cam_bringup --symlink-install
 
 # Test the camera driver
@@ -339,6 +379,12 @@ Run WildPose with the following commmand, and the data will be recorded in a ros
 
 ```bash
 $ ros2 launch wildpose_bringup wildpose_launch.py
+```
+
+After that, you can open eCAL Recorder.
+
+```bash
+$ ecal_rec_gui --config ~/WildPose_v1.1/src/wildpose_bringup/config/config.ecalrec
 ```
 
 ## Generate Video
