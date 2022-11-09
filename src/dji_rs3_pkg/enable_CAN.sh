@@ -1,8 +1,10 @@
 #!/bin/bash
 # https://docs.nvidia.com/jetson/archives/r34.1/DeveloperGuide/text/HR/ControllerAreaNetworkCan.html
 
-sudo busybox devmem 0x0c303010 w 0x400
 sudo busybox devmem 0x0c303018 w 0x458
+sudo busybox devmem 0x0c303010 w 0x400
+sudo busybox devmem 0x0c303008 w 0x458
+sudo busybox devmem 0x0c303000 w 0x400
 
 sudo modprobe can
 sudo modprobe can_raw

@@ -202,6 +202,20 @@ Add the following code into your `/etc/rc.local`:
 sh /home/naoya/WildPose_v1.1/src/dji_rs3_pkg/enable_CAN.sh &
 ```
 
+Check the status of `can0`:
+```bash
+$ ip -s -d link show can0
+```
+
+Check the CAN connection.
+```bash
+# AA 1A 00 03 00 00 00 00  22 11 A2 42 0E 00 20 00  30 00 40 00 01 14 7B 40  97 BE
+$ cansend can0 223#AA1A000300000000
+$ cansend can0 223#2211A2420E002000
+$ cansend can0 223#3000400001147B40
+$ cansend can0 223#97BE
+```
+
 References:
 - [Enabling CAN on Nvidia Jetson Xavier Developer Kit](https://medium.com/@ramin.nabati/enabling-can-on-nvidia-jetson-xavier-developer-kit-aaaa3c4d99c9)
 - [hmxf/can_xavier -- GitHub](https://github.com/hmxf/can_xavier)
