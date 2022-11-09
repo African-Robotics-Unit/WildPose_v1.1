@@ -5,7 +5,7 @@ from rclpy.node import Node
 import can
 import struct
 import numpy as np
-from typing import List
+from typing import List, Any
 from .protocol.sdk import CmdCombine
 
 
@@ -35,8 +35,8 @@ class DjiRs3Node(Node):
         self.send_id_ = 0x223
         self.rev_id_ = 0x222
 
-        self.send_data()
-        self.timer_ = self.create_timer(1.0, self.loop)
+        self.move_to(yaw=90, pitch=0, roll=0, time_ms=0)
+        self.timer_ = self.create_timer(0.1, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
 
@@ -80,35 +80,58 @@ class DjiRs3Node(Node):
             data=cmd_data
         )
         self.send_can_message(cmd)
-
-    def send_data(self):
-        # hex_data = struct.pack(
-        #     '<3h2B',
-        #     0, # yaw,
-        #     0, # roll,
-        #     90 * 10, # pitch,
-        #     0x01, # ctrl_byte,
-        #     0x14, # time_for_action
-        # )
-        # pack_data = ['{:02X}'.format(i) for i in hex_data]
-        # cmd_data = ':'.join(pack_data)
-        # cmd = CmdCombine.combine(cmd_type='03', cmd_set='0E', cmd_id='00', data=cmd_data)
-        # self.get_logger().info(f'cmd: {cmd}')
-            
-        self.move_to(yaw=90, pitch=0, roll=0, time_ms=0)
-
-        # self.get_logger().info(f'msg: {msg}')
-        # self.bus_.send(msg, timeout=0.5)
         
+    def dji_command_parser(self, cmd: bytearray) -> Any:
+        # SOF
+        if cmd[0] != 0xAA:
+            return None
+
+        length = cmd[1] # Length
+        version = cmd[2]    # Version number
+        cmd_type = cmd[3]   # Command Type
+        enc = cmd[4]    # Encrypting
+        res = cmd[5:8]  # Reserved byte segment
+        seq = cmd[8:10] # Serial number
+        crc16 = cmd[10:12]  # Frame header check
+        data = cmd[12:-4]   # data
+        crc32 = cmd[-4:]    # Frame check (the entire frame) 
+   
     def loop(self):
         # get current position
-        pass
+        hex_data = struct.pack(
+            '<1B',    # format: https://docs.python.org/3/library/struct.html#format-strings
+            0x01
+        )
+        pack_data = ['{:02X}'.format(i) for i in hex_data]
+        cmd_data = ':'.join(pack_data)
+        cmd = command_generator(
+            cmd_type='03',
+            cmd_set='0E',
+            cmd_id='02',
+            data=cmd_data
+        )
+        self.send_can_message(cmd)
+
+        dji_cmd = []        
+        while True:
+            msg = self.bus_.recv()
+            if msg is None:
+                break
+            
+            if msg.data[0] == 0xAA:
+                if len(dji_cmd) > 0:
+                    # TODO
+                    self.dji_command_parser(dji_cmd)
+                dji_cmd = msg.data
+            else:
+                dji_cmd += msg.data
+        # self.get_logger().info(msg)
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = DjiRs3Node()
-    # rclpy.spin(node)
+    rclpy.spin(node)
     rclpy.shutdown()
 
 
