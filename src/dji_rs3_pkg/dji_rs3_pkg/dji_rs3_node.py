@@ -8,6 +8,7 @@ from .protocol.sdk import CmdCombine
 
 
 BITRATE = 1000000
+CAN_LENQ = 8
 Seq_Init_Data = 0x0002
 
 
@@ -75,65 +76,20 @@ class DjiRs3Node(Node):
         # ])
         
         
-        # cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
-        # for i in range(0, len(cmd), CAN_LENQ):
-        #     print(cmd[i:i+CAN_LENQ])
-        #     msg = can.Message(
-        #         arbitration_id=self.send_id_,
-        #         is_extended_id=False,
-        #         is_rx=False,
-        #         data=bytearray(cmd[i:i+CAN_LENQ])
-        #     )
-        #     try:
-        #         self.bus_.send(msg)
-        #         self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
-        #     except can.CanError:
-        #         self.get_logger().error("Faild to send a CAN message.")
-        
-        msg = can.Message(
-            arbitration_id=self.send_id_,
-            is_extended_id=False,
-            is_rx=False,
-            data=bytearray([0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00])
-        )
-        try:
-            self.bus_.send(msg)
-            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
-        except can.CanError:
-            self.get_logger().error("Faild to send a CAN message.")
-        msg = can.Message(
-            arbitration_id=self.send_id_,
-            is_extended_id=False,
-            is_rx=False,
-            data=bytearray([0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00])
-        )
-        try:
-            self.bus_.send(msg)
-            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
-        except can.CanError:
-            self.get_logger().error("Faild to send a CAN message.")
-        msg = can.Message(
-            arbitration_id=self.send_id_,
-            is_extended_id=False,
-            is_rx=False,
-            data=bytearray([0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40])
-        )
-        try:
-            self.bus_.send(msg)
-            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
-        except can.CanError:
-            self.get_logger().error("Faild to send a CAN message.")
-        msg = can.Message(
-            arbitration_id=self.send_id_,
-            is_extended_id=False,
-            is_rx=False,
-            data=bytearray([0x97, 0xBE])
-        )
-        try:
-            self.bus_.send(msg)
-            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
-        except can.CanError:
-            self.get_logger().error("Faild to send a CAN message.")
+        cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
+        for i in range(0, len(cmd), CAN_LENQ):
+            print(cmd[i:i+CAN_LENQ])
+            msg = can.Message(
+                arbitration_id=self.send_id_,
+                is_extended_id=False,
+                is_rx=False,
+                data=bytearray(cmd[i:i+CAN_LENQ])
+            )
+            try:
+                self.bus_.send(msg)
+                self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
+            except can.CanError:
+                self.get_logger().error("Faild to send a CAN message.")
             
         # hex_data = struct.pack(
         #     '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
