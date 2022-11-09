@@ -15,7 +15,7 @@ Seq_Init_Data = 0x0002
 
 def command_generator(cmd_type: str, cmd_set: str, cmd_id: str, data: str) -> bytearray:
     dji_cmd = CmdCombine.combine(cmd_type=cmd_type, cmd_set=cmd_set, cmd_id=cmd_id, data=data)
-    return bytearray([int(b, 16) for b in dji_cmd.split(':')])
+    return [int(b, 16) for b in dji_cmd.split(':')]
 
 
 class DjiRs3Node(Node):
@@ -75,11 +75,6 @@ class DjiRs3Node(Node):
         # cmd = CmdCombine.combine(cmd_type='03', cmd_set='0E', cmd_id='00', data=cmd_data)
         # self.get_logger().info(f'cmd: {cmd}')
 
-
-        # $ cansend can0 223#AA1A000300000000 & \
-        # cansend can0 223#2211A2420E002000 & \
-        # cansend can0 223#3000400001147B40 & \
-        # cansend can0 223#97BE
         # data=bytearray([
         #     0xAA, # SOF
         #     0x1A, 0x00, # Ver/Length
@@ -92,32 +87,26 @@ class DjiRs3Node(Node):
         #     0x7B, 0x40, 0x97, 0xBE # CRC-32
         # ])
         
-        
-        cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
-        self.send_can_message(cmd)
+        # cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
+        # self.send_can_message(cmd)
             
-        # hex_data = struct.pack(
-        #     '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
-        #     0, # yaw,
-        #     0, # roll,
-        #     90 * 10, # pitch,
-        #     0x01, # ctrl_byte,
-        #     0x14, # time_for_action
-        # )
-        # pack_data = ['{:02X}'.format(i) for i in hex_data]
-        # cmd_data = ':'.join(pack_data)
-        # send_data = command_generator(
-        #     cmd_type='03',
-        #     cmd_set='0E',
-        #     cmd_id='00',
-        #     data=cmd_data
-        # )
-        # msg = can.Message(
-        #     arbitration_id=self.send_id_,
-        #     is_extended_id=False,
-        #     is_rx=False,
-        #     data=send_data
-        # )
+        hex_data = struct.pack(
+            '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
+            0, # yaw,
+            0, # roll,
+            90 * 10, # pitch,
+            0x01, # ctrl_byte,
+            0x14, # time_for_action
+        )
+        pack_data = ['{:02X}'.format(i) for i in hex_data]
+        cmd_data = ':'.join(pack_data)
+        cmd = command_generator(
+            cmd_type='03',
+            cmd_set='0E',
+            cmd_id='00',
+            data=cmd_data
+        )
+        self.send_can_message(cmd)
 
         # self.get_logger().info(f'msg: {msg}')
         # self.bus_.send(msg, timeout=0.5)
