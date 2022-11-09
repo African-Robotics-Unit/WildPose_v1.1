@@ -1,11 +1,12 @@
 from setuptools import setup
 
 package_name = 'dji_rs3_pkg'
+protocol_module = "dji_rs3_pkg/protocol"
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name],
+    packages=[package_name, protocol_module],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
