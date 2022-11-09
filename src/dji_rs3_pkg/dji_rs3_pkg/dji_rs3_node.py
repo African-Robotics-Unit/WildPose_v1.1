@@ -4,6 +4,7 @@ from rclpy.node import Node
 
 import can
 import struct
+from typing import List
 from .protocol.sdk import CmdCombine
 
 
@@ -43,6 +44,22 @@ class DjiRs3Node(Node):
         if msg is not None:
             self.get_logger().info(f'{msg}')
             self.get_logger().info(f'{type(msg)}\t{msg.dlc}\t{msg.data}')
+            
+    def send_can_message(self, cmd: List):
+        for i in range(0, len(cmd), CAN_LENQ):
+            print(cmd[i:i+CAN_LENQ])
+            data = bytearray(cmd[i:i+CAN_LENQ])
+            msg = can.Message(
+                arbitration_id=self.send_id_,
+                is_extended_id=False,
+                is_rx=False,
+                data=data
+            )
+            try:
+                self.bus_.send(msg)
+                self.get_logger().info(f'Message sent {data} on {self.bus_.channel_info}')
+            except can.CanError:
+                self.get_logger().error("Faild to send a CAN message.")
 
     def send_data(self):
         # hex_data = struct.pack(
@@ -77,19 +94,7 @@ class DjiRs3Node(Node):
         
         
         cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
-        for i in range(0, len(cmd), CAN_LENQ):
-            print(cmd[i:i+CAN_LENQ])
-            msg = can.Message(
-                arbitration_id=self.send_id_,
-                is_extended_id=False,
-                is_rx=False,
-                data=bytearray(cmd[i:i+CAN_LENQ])
-            )
-            try:
-                self.bus_.send(msg)
-                self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
-            except can.CanError:
-                self.get_logger().error("Faild to send a CAN message.")
+        self.send_can_message(cmd)
             
         # hex_data = struct.pack(
         #     '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
