@@ -1,5 +1,5 @@
 #encoding:utf-8
-from protocol.sdk.SDKCRC import calc_crc
+from .SDKCRC import calc_crc
 
 Seq_Init_Data = 0x0002
 

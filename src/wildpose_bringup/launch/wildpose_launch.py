@@ -154,6 +154,14 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level','ERROR']
     )
 
+    dji_rs3_node = Node(
+        package='dji_rs3_pkg',
+        executable='dji_rs3_node',
+        name='dji_rs3_node',
+        output='screen',
+        # arguments=['--ros-args', '--log-level','ERROR']
+    )
+
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record', 
@@ -167,8 +175,9 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        ximea_cam_driver,
-        image_viewer,
-        livox_driver,
-        rosbag,
+        dji_rs3_node,
+        # ximea_cam_driver,
+        # image_viewer,
+        # livox_driver,
+        # rosbag,
     ])

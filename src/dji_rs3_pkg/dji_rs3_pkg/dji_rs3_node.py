@@ -4,7 +4,7 @@ from rclpy.node import Node
 
 import can
 import struct
-from protocol.sdk import CmdCombine
+from .protocol.sdk import CmdCombine
 
 
 BITRATE = 1000000
@@ -32,7 +32,8 @@ class DjiRs3Node(Node):
         self.send_id_ = 0x223
         self.rev_id_ = 0x222
 
-        self.timer_ = self.create_timer(1.0, self.send_data)
+        self.send_data()
+        self.timer_ = self.create_timer(1.0, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
 
@@ -61,54 +62,113 @@ class DjiRs3Node(Node):
         # cansend can0 223#2211A2420E002000 & \
         # cansend can0 223#3000400001147B40 & \
         # cansend can0 223#97BE
-        # msg = can.Message(
-        #     arbitration_id=self.send_id_,
-        #     is_extended_id=False,
-        #     is_rx=False,
-        #     data=bytearray([
-        #         0xAA, # SOF
-        #         0x1A, 0x00, # Ver/Length
-        #         0x03, # CmdType
-        #         0x00, # ENC
-        #         0x00, 0x00, 0x00, # RES
-        #         0x22, 0x11, # SEQ
-        #         0xA2, 0x42, # CRC-16
-        #         0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, # DATA
-        #         0x7B, 0x40, 0x97, 0xBE # CRC-32
-        #     ])
-        # )
-
-        hex_data = struct.pack(
-            '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
-            0, # yaw,
-            0, # roll,
-            90 * 10, # pitch,
-            0x01, # ctrl_byte,
-            0x14, # time_for_action
-        )
-        pack_data = ['{:02X}'.format(i) for i in hex_data]
-        cmd_data = ':'.join(pack_data)
-        send_data = command_generator(
-            cmd_type='03',
-            cmd_set='0E',
-            cmd_id='00',
-            data=cmd_data
-        )
+        # data=bytearray([
+        #     0xAA, # SOF
+        #     0x1A, 0x00, # Ver/Length
+        #     0x03, # CmdType
+        #     0x00, # ENC
+        #     0x00, 0x00, 0x00, # RES
+        #     0x22, 0x11, # SEQ
+        #     0xA2, 0x42, # CRC-16
+        #     0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, # DATA
+        #     0x7B, 0x40, 0x97, 0xBE # CRC-32
+        # ])
+        
+        
+        # cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
+        # for i in range(0, len(cmd), CAN_LENQ):
+        #     print(cmd[i:i+CAN_LENQ])
+        #     msg = can.Message(
+        #         arbitration_id=self.send_id_,
+        #         is_extended_id=False,
+        #         is_rx=False,
+        #         data=bytearray(cmd[i:i+CAN_LENQ])
+        #     )
+        #     try:
+        #         self.bus_.send(msg)
+        #         self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
+        #     except can.CanError:
+        #         self.get_logger().error("Faild to send a CAN message.")
+        
         msg = can.Message(
             arbitration_id=self.send_id_,
             is_extended_id=False,
             is_rx=False,
-            data=send_data
+            data=bytearray([0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00])
         )
+        try:
+            self.bus_.send(msg)
+            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
+        except can.CanError:
+            self.get_logger().error("Faild to send a CAN message.")
+        msg = can.Message(
+            arbitration_id=self.send_id_,
+            is_extended_id=False,
+            is_rx=False,
+            data=bytearray([0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00])
+        )
+        try:
+            self.bus_.send(msg)
+            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
+        except can.CanError:
+            self.get_logger().error("Faild to send a CAN message.")
+        msg = can.Message(
+            arbitration_id=self.send_id_,
+            is_extended_id=False,
+            is_rx=False,
+            data=bytearray([0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40])
+        )
+        try:
+            self.bus_.send(msg)
+            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
+        except can.CanError:
+            self.get_logger().error("Faild to send a CAN message.")
+        msg = can.Message(
+            arbitration_id=self.send_id_,
+            is_extended_id=False,
+            is_rx=False,
+            data=bytearray([0x97, 0xBE])
+        )
+        try:
+            self.bus_.send(msg)
+            self.get_logger().info(f'Message sent on {self.bus_.channel_info}')
+        except can.CanError:
+            self.get_logger().error("Faild to send a CAN message.")
+            
+        # hex_data = struct.pack(
+        #     '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
+        #     0, # yaw,
+        #     0, # roll,
+        #     90 * 10, # pitch,
+        #     0x01, # ctrl_byte,
+        #     0x14, # time_for_action
+        # )
+        # pack_data = ['{:02X}'.format(i) for i in hex_data]
+        # cmd_data = ':'.join(pack_data)
+        # send_data = command_generator(
+        #     cmd_type='03',
+        #     cmd_set='0E',
+        #     cmd_id='00',
+        #     data=cmd_data
+        # )
+        # msg = can.Message(
+        #     arbitration_id=self.send_id_,
+        #     is_extended_id=False,
+        #     is_rx=False,
+        #     data=send_data
+        # )
 
-        self.get_logger().info(f'msg: {msg}')
-        self.bus_.send(msg, timeout=0.5)
+        # self.get_logger().info(f'msg: {msg}')
+        # self.bus_.send(msg, timeout=0.5)
+        
+    def loop(self):
+        pass
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = DjiRs3Node()
-    rclpy.spin(node)
+    # rclpy.spin(node)
     rclpy.shutdown()
 
 
