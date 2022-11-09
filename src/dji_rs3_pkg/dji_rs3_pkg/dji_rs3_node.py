@@ -4,6 +4,7 @@ from rclpy.node import Node
 
 import can
 import struct
+import numpy as np
 from typing import List
 from .protocol.sdk import CmdCombine
 
@@ -60,6 +61,25 @@ class DjiRs3Node(Node):
                 self.get_logger().info(f'Message sent {data} on {self.bus_.channel_info}')
             except can.CanError:
                 self.get_logger().error("Faild to send a CAN message.")
+            
+    def move_to(self, yaw, pitch, roll, time_ms):
+        hex_data = struct.pack(
+            '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
+            int(yaw * 10),
+            int(roll * 10),
+            int(pitch * 10),
+            0x00, # ctrl_byte,
+            np.uint8(time_ms / 100), # time_for_action
+        )
+        pack_data = ['{:02X}'.format(i) for i in hex_data]
+        cmd_data = ':'.join(pack_data)
+        cmd = command_generator(
+            cmd_type='03',
+            cmd_set='0E',
+            cmd_id='00',
+            data=cmd_data
+        )
+        self.send_can_message(cmd)
 
     def send_data(self):
         # hex_data = struct.pack(
@@ -74,39 +94,8 @@ class DjiRs3Node(Node):
         # cmd_data = ':'.join(pack_data)
         # cmd = CmdCombine.combine(cmd_type='03', cmd_set='0E', cmd_id='00', data=cmd_data)
         # self.get_logger().info(f'cmd: {cmd}')
-
-        # data=bytearray([
-        #     0xAA, # SOF
-        #     0x1A, 0x00, # Ver/Length
-        #     0x03, # CmdType
-        #     0x00, # ENC
-        #     0x00, 0x00, 0x00, # RES
-        #     0x22, 0x11, # SEQ
-        #     0xA2, 0x42, # CRC-16
-        #     0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, # DATA
-        #     0x7B, 0x40, 0x97, 0xBE # CRC-32
-        # ])
-        
-        # cmd = [0xAA, 0x1A, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x22, 0x11, 0xA2, 0x42, 0x0E, 0x00, 0x20, 0x00, 0x30, 0x00, 0x40, 0x00, 0x01, 0x14, 0x7B, 0x40, 0x97, 0xBE]
-        # self.send_can_message(cmd)
             
-        hex_data = struct.pack(
-            '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
-            0, # yaw,
-            0, # roll,
-            90 * 10, # pitch,
-            0x01, # ctrl_byte,
-            0x14, # time_for_action
-        )
-        pack_data = ['{:02X}'.format(i) for i in hex_data]
-        cmd_data = ':'.join(pack_data)
-        cmd = command_generator(
-            cmd_type='03',
-            cmd_set='0E',
-            cmd_id='00',
-            data=cmd_data
-        )
-        self.send_can_message(cmd)
+        self.move_to(yaw=90, pitch=0, roll=0, time_ms=500)
 
         # self.get_logger().info(f'msg: {msg}')
         # self.bus_.send(msg, timeout=0.5)
