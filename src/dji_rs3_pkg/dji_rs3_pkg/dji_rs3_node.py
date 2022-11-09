@@ -62,7 +62,7 @@ class DjiRs3Node(Node):
             except can.CanError:
                 self.get_logger().error("Faild to send a CAN message.")
             
-    def move_to(self, yaw, pitch, roll, time_ms):
+    def move_to(self, yaw: float, pitch: float, roll: float, time_ms: int = 0):
         hex_data = struct.pack(
             '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
             int(yaw * 10),
@@ -95,12 +95,13 @@ class DjiRs3Node(Node):
         # cmd = CmdCombine.combine(cmd_type='03', cmd_set='0E', cmd_id='00', data=cmd_data)
         # self.get_logger().info(f'cmd: {cmd}')
             
-        self.move_to(yaw=90, pitch=0, roll=0, time_ms=500)
+        self.move_to(yaw=90, pitch=0, roll=0, time_ms=0)
 
         # self.get_logger().info(f'msg: {msg}')
         # self.bus_.send(msg, timeout=0.5)
         
     def loop(self):
+        # get current position
         pass
 
 
