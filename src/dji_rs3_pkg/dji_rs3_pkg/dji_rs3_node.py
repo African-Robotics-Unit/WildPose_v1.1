@@ -133,16 +133,38 @@ class DjiRs3Node(Node):
             if cmd_key == 0x000E:
                 self.get_logger().info('get posControl request.')
             elif cmd_key == 0x020E:
-                yaw = bytearray2value(data[14:16])
-                roll = bytearray2value(data[16:18])
-                pitch = bytearray2value(data[18:20])
-                self.get_logger().info(f'Gimble Position: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
+                return_code = data[14]
+                data_type = data[15]
+                yaw = bytearray2value(data[16:18])
+                roll = bytearray2value(data[18:20])
+                pitch = bytearray2value(data[20:22])
+                
+                # return code
+                if return_code == 0x00:
+                    self.get_logger().info('Command execuition succeeds.')
+                elif return_code == 0x01:
+                    self.get_logger().error('Command parse error.')
+                elif return_code == 0x02:
+                    self.get_logger().error('Command execuition fails.')
+                elif return_code == 0xFF:
+                    self.get_logger().error('Undefined error.')
+                
+                # data type
+                if data_type == 0x00:
+                    self.get_logger().info('Data is not ready.')
+                elif data_type == 0x01:
+                    self.get_logger().info(bytearray2string(data))
+                    self.get_logger().info(f'Attitude angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
+                elif data_type == 0x02:
+                    self.get_logger().info(f'Joint angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
                 return {
                     'type': 'position',
                     'yaw': yaw,
                     'pitch': pitch,
                     'roll': roll,
                 }
+            else:
+                self.get_logger().info('get unknown request.')
 
         return None
         
@@ -234,8 +256,6 @@ class DjiRs3Node(Node):
             if len(self.cmd_list_) == 0 or time.time() - stime > 5:
                 break
                     
-        self.get_logger().info('End of Loop')
-
 
 def main(args=None):
     rclpy.init(args=args)
