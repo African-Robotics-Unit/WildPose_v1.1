@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import rclpy
 from rclpy.node import Node
+from sensor_msgs.msg import Joy
 
 import can
 import struct
@@ -61,6 +62,13 @@ class DjiRs3Node(Node):
         # Node parameters
         self.declare_parameter("channel", "can0")
         self.channel_ = self.get_parameter("channel").value
+        
+        self.joy_ = self.create_subscription(
+            Joy,
+            '/joy',
+            self.joy_callback,
+            10
+        )
 
         self.bus_ = can.interface.Bus(
             bustype='socketcan',
@@ -76,6 +84,9 @@ class DjiRs3Node(Node):
         self.timer_ = self.create_timer(1.0, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
+        
+    def joy_callback(self, msg):
+        self.get_logger().info(f'joy axes: {msg.axes}')
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
