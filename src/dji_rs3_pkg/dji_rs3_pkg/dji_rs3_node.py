@@ -6,6 +6,7 @@ import can
 import struct
 import numpy as np
 import time
+import ctypes
 from typing import List, Any
 from .protocol.sdk import CmdCombine
 from .protocol.sdk.SDKCRC import calc_crc
@@ -32,11 +33,16 @@ def _check_pack_crc(data):
 
     return crc16 == recv_crc
 
-def bytearray2value(bytes) -> int:
+def bytearray2value(bytes, signed=False) -> int:
     if len(bytes) > 1:
-        return (bytes[1] << 8) + bytes[0]
+        value = (bytes[1] << 8) + bytes[0]
     else:
-        return bytes[0]
+        value = bytes[0]
+
+    if signed:
+        return ctypes.c_short(value).value
+    else:
+        return value
 
 
 def command_generator(cmd_type: str, cmd_set: str, cmd_id: str, data: str) -> bytearray:
@@ -62,16 +68,10 @@ class DjiRs3Node(Node):
         
         self.cmd_list_ = []
 
-        self.move_to(dyaw=90, dpitch=0, droll=0, time_ms=0)
+        self.move_to(dyaw=180, dpitch=0, droll=0, time_ms=0)
         self.timer_ = self.create_timer(1.0, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
-
-    def get_data(self):
-        msg = self.bus_.recv()
-        if msg is not None:
-            self.get_logger().info(f'{msg}')
-            self.get_logger().info(f'{type(msg.data)}\t{msg.dlc}\t{msg.data}')
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
@@ -84,7 +84,7 @@ class DjiRs3Node(Node):
             )
             try:
                 self.bus_.send(msg)
-                self.get_logger().info(f'Message sent {bytearray2string(data)} on {self.bus_.channel_info}')
+                self.get_logger().debug(f'Message sent {bytearray2string(data)} on {self.bus_.channel_info}')
             except can.CanError:
                 self.get_logger().error("Faild to send a CAN message.")
             
@@ -113,7 +113,7 @@ class DjiRs3Node(Node):
         cmd_id = 0  # command code (CmdID)
         is_ok = False
         
-        # If it is a response frame, need to check the corresponding send command
+        # If it is a reply frame, need to check the corresponding send command
         if cmd_type == 0x20:
             for i, cmd in enumerate(self.cmd_list_):
                 if data[8:10] == cmd[8:10]: # compare the serial numbers
@@ -128,37 +128,46 @@ class DjiRs3Node(Node):
             is_ok = True
             
         if is_ok:
-            self.get_logger().info(f'CmdSet: {cmd_set}\tCmdID: {cmd_id}')
+            self.get_logger().debug(f'CmdSet: {cmd_set}\tCmdID: {cmd_id}')
             cmd_key = bytearray2value([cmd_set, cmd_id])
             if cmd_key == 0x000E:
                 self.get_logger().info('get posControl request.')
             elif cmd_key == 0x020E:
                 return_code = data[14]
                 data_type = data[15]
-                yaw = bytearray2value(data[16:18])
-                roll = bytearray2value(data[18:20])
-                pitch = bytearray2value(data[20:22])
                 
                 # return code
                 if return_code == 0x00:
                     self.get_logger().info('Command execuition succeeds.')
                 elif return_code == 0x01:
                     self.get_logger().error('Command parse error.')
+                    return None
                 elif return_code == 0x02:
                     self.get_logger().error('Command execuition fails.')
+                    return None
                 elif return_code == 0xFF:
                     self.get_logger().error('Undefined error.')
+                    return None
+
+                self.get_logger().info(f'{data[16]} {data[17]}')
+                yaw = bytearray2value(data[16:18], signed=True) * 0.1
+                roll = bytearray2value(data[18:20], signed=True) * 0.1
+                pitch = bytearray2value(data[20:22], signed=True) * 0.1
                 
                 # data type
                 if data_type == 0x00:
                     self.get_logger().info('Data is not ready.')
                 elif data_type == 0x01:
-                    self.get_logger().info(bytearray2string(data))
+                    data_type = 'attitude_angle'
                     self.get_logger().info(f'Attitude angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
                 elif data_type == 0x02:
+                    data_type = 'joint_angle'
                     self.get_logger().info(f'Joint angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
+                else:
+                    self.get_logger().error('Undefined data type: 0x{:02X}'.format(data_type))
+
                 return {
-                    'type': 'position',
+                    'type': data_type,
                     'yaw': yaw,
                     'pitch': pitch,
                     'roll': roll,
@@ -170,7 +179,7 @@ class DjiRs3Node(Node):
         
     def dji_command_parser(self, frame: bytearray) -> Any:
         # SOF
-        if frame[0] != 0xAA:
+        if not (len(frame) > 12 and frame[0] == 0xAA):
             return None
 
         pack_len = frame[1] # Length
@@ -212,10 +221,15 @@ class DjiRs3Node(Node):
                     step = 0
                     if _check_pack_crc(v1_pack_list):
                         result = self._process_cmd(v1_pack_list)
+                        if result is not None:
+                            return result
                     v1_pack_list.clear()
             else:
                 step = 0
                 v1_pack_list.clear()
+                
+        self.get_logger().debug(f'dji_command_parser() failed for {bytearray2string(frame)}')
+        return None
    
     def loop(self):
         self.bus_.flush_tx_buffer()
@@ -234,6 +248,7 @@ class DjiRs3Node(Node):
             data=cmd_data
         )
         self.send_can_message(cmd)
+        self.cmd_list_.clear()
         self.cmd_list_.append(cmd)
 
         dji_cmd = []
@@ -249,11 +264,14 @@ class DjiRs3Node(Node):
                 dji_cmd = msg.data
             elif len(dji_cmd) > 0:
                 dji_cmd += msg.data
-                if len(dji_cmd) >= length:
+                if len(dji_cmd) >= length > 0:
                     dji_cmd = dji_cmd[:length]
-                    self.dji_command_parser(dji_cmd)
+                    result = self.dji_command_parser(dji_cmd)
+                    if result is not None and result['type'] == 'attitude_angle':
+                        self.get_logger().info('Success.')
+                        break
         
-            if len(self.cmd_list_) == 0 or time.time() - stime > 5:
+            if len(self.cmd_list_) == 0 or time.time() - stime > 2:
                 break
                     
 
