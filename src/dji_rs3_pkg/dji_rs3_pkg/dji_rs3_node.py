@@ -15,9 +15,12 @@ from .protocol.sdk.SDKCRC import calc_crc
 BITRATE = 1000000
 CAN_LENQ = 8
 Seq_Init_Data = 0x0002
+TIMEOUT = 2 # second
+
 
 def bytearray2string(data):
     return ':'.join(['{:02X}'.format(d) for d in data])
+
 
 def _check_head_crc(data):
     cmd_prefix = bytearray2string(data[:-2])
@@ -32,6 +35,7 @@ def _check_pack_crc(data):
     recv_crc = bytearray2string(data[-4:])
 
     return crc16 == recv_crc
+
 
 def bytearray2value(bytes, signed=False) -> int:
     if len(bytes) > 1:
@@ -149,7 +153,6 @@ class DjiRs3Node(Node):
                     self.get_logger().error('Undefined error.')
                     return None
 
-                self.get_logger().info(f'{data[16]} {data[17]}')
                 yaw = bytearray2value(data[16:18], signed=True) * 0.1
                 roll = bytearray2value(data[18:20], signed=True) * 0.1
                 pitch = bytearray2value(data[20:22], signed=True) * 0.1
@@ -268,10 +271,10 @@ class DjiRs3Node(Node):
                     dji_cmd = dji_cmd[:length]
                     result = self.dji_command_parser(dji_cmd)
                     if result is not None and result['type'] == 'attitude_angle':
-                        self.get_logger().info('Success.')
+                        self.get_logger().debug('End of Loop.')
                         break
         
-            if len(self.cmd_list_) == 0 or time.time() - stime > 2:
+            if len(self.cmd_list_) == 0 or time.time() - stime > TIMEOUT:
                 break
                     
 
