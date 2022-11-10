@@ -5,13 +5,38 @@ from rclpy.node import Node
 import can
 import struct
 import numpy as np
+import time
 from typing import List, Any
 from .protocol.sdk import CmdCombine
+from .protocol.sdk.SDKCRC import calc_crc
 
 
 BITRATE = 1000000
 CAN_LENQ = 8
 Seq_Init_Data = 0x0002
+
+def bytearray2string(data):
+    return ':'.join(['{:02X}'.format(d) for d in data])
+
+def _check_head_crc(data):
+    cmd_prefix = bytearray2string(data[:-2])
+    crc16 = calc_crc(cmd_prefix, 16)
+    recv_crc = bytearray2string(data[-2:])
+
+    return crc16 == recv_crc
+
+def _check_pack_crc(data):
+    cmd_prefix = bytearray2string(data[:-4])
+    crc16 = calc_crc(cmd_prefix, 32)
+    recv_crc = bytearray2string(data[-4:])
+
+    return crc16 == recv_crc
+
+def bytearray2value(bytes) -> int:
+    if len(bytes) > 1:
+        return (bytes[1] << 8) + bytes[0]
+    else:
+        return bytes[0]
 
 
 def command_generator(cmd_type: str, cmd_set: str, cmd_id: str, data: str) -> bytearray:
@@ -34,9 +59,11 @@ class DjiRs3Node(Node):
         )
         self.send_id_ = 0x223
         self.rev_id_ = 0x222
+        
+        self.cmd_list_ = []
 
-        self.move_to(yaw=90, pitch=0, roll=0, time_ms=0)
-        self.timer_ = self.create_timer(0.1, self.loop)
+        self.move_to(dyaw=90, dpitch=0, droll=0, time_ms=0)
+        self.timer_ = self.create_timer(1.0, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
 
@@ -44,11 +71,10 @@ class DjiRs3Node(Node):
         msg = self.bus_.recv()
         if msg is not None:
             self.get_logger().info(f'{msg}')
-            self.get_logger().info(f'{type(msg)}\t{msg.dlc}\t{msg.data}')
+            self.get_logger().info(f'{type(msg.data)}\t{msg.dlc}\t{msg.data}')
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
-            print(cmd[i:i+CAN_LENQ])
             data = bytearray(cmd[i:i+CAN_LENQ])
             msg = can.Message(
                 arbitration_id=self.send_id_,
@@ -58,16 +84,16 @@ class DjiRs3Node(Node):
             )
             try:
                 self.bus_.send(msg)
-                self.get_logger().info(f'Message sent {data} on {self.bus_.channel_info}')
+                self.get_logger().info(f'Message sent {bytearray2string(data)} on {self.bus_.channel_info}')
             except can.CanError:
                 self.get_logger().error("Faild to send a CAN message.")
             
-    def move_to(self, yaw: float, pitch: float, roll: float, time_ms: int = 0):
+    def move_to(self, dyaw: float, dpitch: float, droll: float, time_ms: int = 0):
         hex_data = struct.pack(
             '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
-            int(yaw * 10),
-            int(roll * 10),
-            int(pitch * 10),
+            int(dyaw * 10),
+            int(droll * 10),
+            int(dpitch * 10),
             0x00, # ctrl_byte,
             np.uint8(time_ms / 100), # time_for_action
         )
@@ -81,22 +107,97 @@ class DjiRs3Node(Node):
         )
         self.send_can_message(cmd)
         
-    def dji_command_parser(self, cmd: bytearray) -> Any:
+    def _process_cmd(self, data):
+        cmd_type = data[3]
+        cmd_set = 0 # command set (CmdSet)
+        cmd_id = 0  # command code (CmdID)
+        is_ok = False
+        
+        # If it is a response frame, need to check the corresponding send command
+        if cmd_type == 0x20:
+            for i, cmd in enumerate(self.cmd_list_):
+                if data[8:10] == cmd[8:10]: # compare the serial numbers
+                    cmd_set = cmd[12]
+                    cmd_id = cmd[13]
+                    self.cmd_list_.pop(i)   # remove the matched element
+                    is_ok = True
+                    break
+        else:
+            cmd_set = cmd[12]
+            cmd_id = cmd[13]
+            is_ok = True
+            
+        if is_ok:
+            self.get_logger().info(f'CmdSet: {cmd_set}\tCmdID: {cmd_id}')
+            cmd_key = bytearray2value([cmd_set, cmd_id])
+            if cmd_key == 0x000E:
+                self.get_logger().info('get posControl request.')
+            elif cmd_key == 0x020E:
+                yaw = bytearray2value(data[14:16])
+                roll = bytearray2value(data[16:18])
+                pitch = bytearray2value(data[18:20])
+                self.get_logger().info(f'Gimble Position: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
+                return {
+                    'type': 'position',
+                    'yaw': yaw,
+                    'pitch': pitch,
+                    'roll': roll,
+                }
+
+        return None
+        
+    def dji_command_parser(self, frame: bytearray) -> Any:
         # SOF
-        if cmd[0] != 0xAA:
+        if frame[0] != 0xAA:
             return None
 
-        length = cmd[1] # Length
-        version = cmd[2]    # Version number
-        cmd_type = cmd[3]   # Command Type
-        enc = cmd[4]    # Encrypting
-        res = cmd[5:8]  # Reserved byte segment
-        seq = cmd[8:10] # Serial number
-        crc16 = cmd[10:12]  # Frame header check
-        data = cmd[12:-4]   # data
-        crc32 = cmd[-4:]    # Frame check (the entire frame) 
+        pack_len = frame[1] # Length
+        version = frame[2]    # Version number
+        cmd_type = frame[3]   # Command Type
+        enc = frame[4]    # Encrypting
+        res = frame[5:8]  # Reserved byte segment
+        seq = frame[8:10] # Serial number
+        crc16 = frame[10:12]  # Frame header check
+        data = frame[12:-4]   # data
+        crc32 = frame[-4:]    # Frame check (the entire frame) 
+
+        step = 0            
+        v1_pack_list = []
+        for i in range(0, len(frame)):
+            if step == 0:
+                if frame[i] == 0xAA:
+                    v1_pack_list.append(frame[i])
+                    step = 1
+            elif step == 1:
+                pack_len = frame[i]
+                v1_pack_list.append(frame[i])
+                step = 2
+            elif step == 2:
+                version = frame[i]
+                v1_pack_list.append(frame[i])
+                step = 3
+            elif step == 3:
+                v1_pack_list.append(frame[i])
+                if len(v1_pack_list) == 12:
+                    if _check_head_crc(v1_pack_list):
+                        step = 4
+                    else:
+                        step = 0
+                        v1_pack_list.clear()
+            elif step == 4:
+                v1_pack_list.append(frame[i])
+                if len(v1_pack_list) == pack_len:
+                    step = 0
+                    if _check_pack_crc(v1_pack_list):
+                        result = self._process_cmd(v1_pack_list)
+                    v1_pack_list.clear()
+            else:
+                step = 0
+                v1_pack_list.clear()
    
     def loop(self):
+        self.bus_.flush_tx_buffer()
+        
         # get current position
         hex_data = struct.pack(
             '<1B',    # format: https://docs.python.org/3/library/struct.html#format-strings
@@ -111,27 +212,35 @@ class DjiRs3Node(Node):
             data=cmd_data
         )
         self.send_can_message(cmd)
+        self.cmd_list_.append(cmd)
 
-        dji_cmd = []        
+        dji_cmd = []
+        length = -1 # the excepted command length
+        stime = time.time()
         while True:
             msg = self.bus_.recv()
             if msg is None:
                 break
             
             if msg.data[0] == 0xAA:
-                if len(dji_cmd) > 0:
-                    # TODO
-                    self.dji_command_parser(dji_cmd)
+                length = msg.data[1]
                 dji_cmd = msg.data
-            else:
+            elif len(dji_cmd) > 0:
                 dji_cmd += msg.data
-        # self.get_logger().info(msg)
+                if len(dji_cmd) >= length:
+                    dji_cmd = dji_cmd[:length]
+                    self.dji_command_parser(dji_cmd)
+        
+            if len(self.cmd_list_) == 0 or time.time() - stime > 5:
+                break
+                    
+        self.get_logger().info('End of Loop')
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = DjiRs3Node()
-    # rclpy.spin(node)
+    rclpy.spin(node)
     rclpy.shutdown()
 
 

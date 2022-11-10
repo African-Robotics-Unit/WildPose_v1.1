@@ -29,8 +29,7 @@ def combine(cmd_type, cmd_set, cmd_id, data):
 	cmd_length = len(tmp_cmd.split(":")) + 15 #总的数据包长度
 	seqnum = seq_num()
 
-	cmd_prefix="AA" + ":" + ("%04x"%(cmd_length))[2:4] + ":" + ("%04x"%(cmd_length))[0:2] \
-			   + ":{cmd_type}:{enc:02x}:{res1:02x}:{res2:02x}:{res3:02x}:{seqnum}".format(cmd_type=cmd_type, enc=0x00,res1=0x00, res2=0x00, res3=0x00,seqnum=seqnum)
+	cmd_prefix = "AA" + ":" + ("%04x"%(cmd_length))[2:4] + ":" + ("%04x"%(cmd_length))[0:2] + ":{cmd_type}:{enc:02x}:{res1:02x}:{res2:02x}:{res3:02x}:{seqnum}".format(cmd_type=cmd_type, enc=0x00,res1=0x00, res2=0x00, res3=0x00,seqnum=seqnum)
 	#计算CRC16
 	crc16_val = calc_crc(cmd_prefix, 16)
 	cmd_prefix = cmd_prefix + ":" + crc16_val
