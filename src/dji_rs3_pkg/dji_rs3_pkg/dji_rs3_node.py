@@ -131,7 +131,7 @@ class DjiRs3Node(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = DjiRs3Node()
-    rclpy.spin(node)
+    # rclpy.spin(node)
     rclpy.shutdown()
 
 

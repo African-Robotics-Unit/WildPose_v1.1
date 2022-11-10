@@ -210,10 +210,10 @@ $ ip -s -d link show can0
 Check the CAN connection.
 ```bash
 # AA 1A 00 03 00 00 00 00  22 11 A2 42 0E 00 20 00  30 00 40 00 01 14 7B 40  97 BE
-$ cansend can0 223#AA1A000300000000
-$ cansend can0 223#2211A2420E002000
-$ cansend can0 223#3000400001147B40
-$ cansend can0 223#97BE
+$ cansend can0 223#AA1A000300000000 && \
+    cansend can0 223#2211A2420E002000 && \
+    cansend can0 223#3000400001147B40 && \
+    cansend can0 223#97BE
 ```
 
 References:
@@ -252,6 +252,7 @@ Recommend Extensions:
 Run WildPose with the following commmand, and the data will be recorded in a rosbag file in `rosbags/`.
 
 ```bash
+$ sudo ip link set down can0 && sudo ip link set up can0
 $ ros2 launch wildpose_bringup wildpose_launch.py
 ```
 
