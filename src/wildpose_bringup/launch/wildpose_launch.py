@@ -154,6 +154,18 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level','ERROR']
     )
 
+    gamepad_node = Node(
+        package='joy_linux',
+        executable='joy_linux_node',
+        name='gamepad_f710_publisher',
+        parameters=[
+            {'dev_name', 'Wireless Gamepad F710'}
+        ],
+        arguments=['--ros-args',
+            '--log-level','ERROR'
+        ]
+    )
+
     dji_rs3_node = Node(
         package='dji_rs3_pkg',
         executable='dji_rs3_node',
@@ -176,6 +188,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         dji_rs3_node,
+        gamepad_node,
         # ximea_cam_driver,
         # image_viewer,
         # livox_driver,
