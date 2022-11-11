@@ -17,7 +17,6 @@ from .protocol.sdk.SDKCRC import calc_crc
 BITRATE = 1000000
 CAN_LENQ = 8
 Seq_Init_Data = 0x0002
-TIMEOUT = 2 # second
 
 
 def bytearray2string(data):
@@ -252,7 +251,7 @@ class DjiRs3Node(Node):
                     'roll': roll,
                 }
             else:
-                self.get_logger().info('get unknown request.')
+                self.get_logger().info('get unknown request ({:04X}).'.format(cmd_key))
 
         return None
         
@@ -310,7 +309,7 @@ class DjiRs3Node(Node):
         self.get_logger().debug(f'dji_command_parser() failed for {bytearray2string(frame)}')
         return None
     
-    def wait_reply_frame(self, ):
+    def wait_reply_frame(self, timeout_duration):
         dji_cmd = []
         length = -1 # the excepted command length
         stime = time.time()
@@ -330,7 +329,7 @@ class DjiRs3Node(Node):
                     if result is not None and result['type'] == 'attitude_angle':
                         return result
         
-            if len(self.cmd_list_) == 0 or time.time() - stime > TIMEOUT:
+            if len(self.cmd_list_) == 0 or time.time() - stime > timeout_duration:
                 break
         return None
    
@@ -354,7 +353,7 @@ class DjiRs3Node(Node):
         self.cmd_list_.clear()
         self.cmd_list_.append(cmd)
 
-        r = self.wait_reply_frame()
+        r = self.wait_reply_frame(timeout_duration=0.1)
         if r is not None and r['type'] == 'attitude_angle':
             msg = DjiRsStatus()
             msg.header.stamp = self.get_clock().now().to_msg()
