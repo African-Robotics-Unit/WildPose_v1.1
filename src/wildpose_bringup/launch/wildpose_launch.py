@@ -80,8 +80,9 @@ ximea_cam_parameters = {
     'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
 
     # colour image format
-    'format': "XI_RGB24", # BGR 24 bit
-    # 'format': "XI_RAW8",
+    # 'format': "XI_RGB24", # BGR 24 bit
+    'format': "XI_RAW8",
+    # 'format': "XI_MONO8",
     
     # camera coloring
     # white balance mode: 0 - none, 1 - use coefficients, 2: auto
@@ -96,7 +97,7 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 100,  # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 170,  # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
@@ -109,14 +110,19 @@ ximea_cam_parameters = {
 
     # region of interest
     # MQ022CG-CM: 2048x1088
+    # - Full (2048x1088)
+    # 'roi_left': 0,      # top left corner in pixels
+    # 'roi_top': 0,
+    # 'roi_width': 2048,  # width height in pixels
+    # 'roi_height': 1088,
     # - 1080p(1920x1080)
     # 'roi_left': 64,      # top left corner in pixels
     # 'roi_top': 4,
-    # 'roi_width': 1280,  # width height in pixels
-    # 'roi_height': 1024,
+    # 'roi_width': 1920,  # width height in pixels
+    # 'roi_height': 1080,
     # - 720p (1280x720)
-    'roi_left': 64,      # top left corner in pixels
-    'roi_top': 4,
+    'roi_left': 512,      # top left corner in pixels
+    'roi_top': 184,
     'roi_width': 1280,  # width height in pixels
     'roi_height': 720,
     ################### XIMEA camera user-defined parameters end #####################
