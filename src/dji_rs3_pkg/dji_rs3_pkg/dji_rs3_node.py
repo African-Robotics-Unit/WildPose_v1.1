@@ -119,6 +119,12 @@ class DjiRs3Node(Node):
         if buttons['joy_right'] == 1:
             # move to the home position
             self.recenter()
+        elif axes['joy_right'][0] != 0:
+            rl = - axes['joy_right'][0]
+            self.move_to(dyaw=rl * 10)
+        elif axes['joy_right'][1] != 0:
+            ub = axes['joy_right'][1]
+            self.move_to(dpitch=ub * 10)
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
@@ -152,7 +158,13 @@ class DjiRs3Node(Node):
         self.send_can_message(cmd)
         self.cmd_list_.append(cmd)
             
-    def move_to(self, dyaw: float, dpitch: float, droll: float, time_ms: int = 0):
+    def move_to(
+        self, 
+        dyaw: float = 0, 
+        dpitch: float = 0, 
+        droll: float = 0, 
+        time_ms: int = 0
+    ):
         hex_data = struct.pack(
             '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
             int(dyaw * 10),
