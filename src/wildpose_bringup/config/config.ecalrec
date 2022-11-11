@@ -17,8 +17,11 @@ Date: $HOST{TIME %F %R}
     <useBuiltInRecorder>true</useBuiltInRecorder>
     <topicList type="whitelist">
         <topic>rt/camera_info</topic>
+        <topic>rt/dji_rs3</topic>
         <topic>rt/image_compressed</topic>
         <topic>rt/image_count</topic>
+        <topic>rt/image_raw</topic>
+        <topic>rt/joy</topic>
     </topicList>
     <uploadConfig protocol="internal">
         <deleteAfterUpload>false</deleteAfterUpload>

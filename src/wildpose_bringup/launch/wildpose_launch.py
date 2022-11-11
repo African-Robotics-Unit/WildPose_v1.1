@@ -183,6 +183,7 @@ def generate_launch_description():
         arguments=['--ros-args',
             '--log-level','INFO'
         ]
+    )
 
     dji_rs3_node = Node(
         package='dji_rs3_pkg',
@@ -207,9 +208,9 @@ def generate_launch_description():
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
-        # motor_control_node,
         dji_rs3_node,
         gamepad_node,
+        # motor_control_node,
         # livox_driver,
         # rosbag,
     ])
