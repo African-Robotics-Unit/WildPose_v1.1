@@ -2,6 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
+from wildpose_interfaces.msg import DjiRsStatus
 
 import can
 import struct
@@ -97,6 +98,7 @@ class DjiRs3Node(Node):
             self.joy_callback,
             10
         )
+        self.rs3_status_publisher_ = self.create_publisher(DjiRsStatus, 'dji_rs3', 10)
 
         self.bus_ = can.interface.Bus(
             bustype='socketcan',
@@ -108,9 +110,9 @@ class DjiRs3Node(Node):
         
         self.cmd_list_ = []
 
-        # self.recenter()
-        self.move_to(dyaw=90, dpitch=0, droll=0, time_ms=0)
-        self.timer_ = self.create_timer(1.0, self.loop)
+        self.recenter()
+        # self.move_to(dyaw=90, dpitch=0, droll=0, time_ms=0)
+        self.timer_ = self.create_timer(0.1, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
         
@@ -216,7 +218,7 @@ class DjiRs3Node(Node):
                 # return code
                 serial = bytearray2value(data[8:10])
                 if return_code == 0x00:
-                    self.get_logger().info(f'[{serial}] Command execuition succeeds.')
+                    self.get_logger().debug(f'[{serial}] Command execuition succeeds.')
                 elif return_code == 0x01:
                     self.get_logger().error(f'[{serial}] Command parse error.')
                     return None
@@ -233,13 +235,13 @@ class DjiRs3Node(Node):
                 
                 # data type
                 if data_type == 0x00:
-                    self.get_logger().info('Data is not ready.')
+                    self.get_logger().error('Data is not ready.')
                 elif data_type == 0x01:
                     data_type = 'attitude_angle'
-                    self.get_logger().info(f'Attitude angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
+                    self.get_logger().debug(f'Attitude angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
                 elif data_type == 0x02:
                     data_type = 'joint_angle'
-                    self.get_logger().info(f'Joint angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
+                    self.get_logger().debug(f'Joint angle: {yaw}(yaw) {pitch}(pitch) {roll}(roll)')
                 else:
                     self.get_logger().error('Undefined data type: 0x{:02X}'.format(data_type))
 
@@ -352,9 +354,17 @@ class DjiRs3Node(Node):
         self.cmd_list_.clear()
         self.cmd_list_.append(cmd)
 
-        self.wait_reply_frame()
+        r = self.wait_reply_frame()
+        if r is not None and r['type'] == 'attitude_angle':
+            msg = DjiRsStatus()
+            msg.header.stamp = self.get_clock().now().to_msg()
+            msg.yaw = r['yaw']
+            msg.pitch = r['pitch']
+            msg.roll = r['roll']
+            self.rs3_status_publisher_.publish(msg)
+        
         self.get_logger().debug('End of Loop.')
-                    
+
 
 def main(args=None):
     rclpy.init(args=args)
