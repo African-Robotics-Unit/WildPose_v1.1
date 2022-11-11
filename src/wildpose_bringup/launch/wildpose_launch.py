@@ -169,7 +169,8 @@ def generate_launch_description():
         executable='joy_linux_node',
         name='gamepad_f710_publisher',
         parameters=[
-            {'dev_name', 'Wireless Gamepad F710'}
+            {'dev', '/dev/input/js0'},
+            {'dev_name', 'Wireless Gamepad F710'},
         ],
         arguments=['--ros-args',
             '--log-level','ERROR'
