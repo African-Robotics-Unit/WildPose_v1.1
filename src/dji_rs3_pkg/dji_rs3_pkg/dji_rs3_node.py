@@ -8,7 +8,7 @@ import struct
 import numpy as np
 import time
 import ctypes
-from typing import List, Any
+from typing import List, Any, Dict
 from .protocol.sdk import CmdCombine
 from .protocol.sdk.SDKCRC import calc_crc
 
@@ -55,6 +55,34 @@ def command_generator(cmd_type: str, cmd_set: str, cmd_id: str, data: str) -> by
     return [int(b, 16) for b in dji_cmd.split(':')]
 
 
+def joymsg2f510(msg):
+    # Logitech F510
+    # Button: [A, B, X, Y, LB, RB, BACK, START, Logitech, Right joy, Left joy]
+    # Axes: [JoyL LR(+-), JoyL UB(+-), LT(-1~1), JoyR LR(+-), JoyR UB(+-), RT(-1~1), D-pad LR(+-), D-pad UB(+-)]
+    buttons = {
+        'A': msg.buttons[0],
+        'B': msg.buttons[1],
+        'X': msg.buttons[2],
+        'Y': msg.buttons[3],
+        'LB': msg.buttons[4],
+        'RB': msg.buttons[5],
+        'BACK': msg.buttons[6],
+        'START': msg.buttons[7],
+        'Logitech': msg.buttons[8],
+        'joy_left': msg.buttons[9],
+        'joy_right': msg.buttons[10],
+    }
+    axes = {
+        'joy_left': [msg.axes[0], msg.axes[1]],
+        'LT': msg.axes[2],
+        'joy_right': [msg.axes[3], msg.axes[4]],
+        'RT': msg.axes[5],
+        'd_pad': [msg.axes[6], msg.axes[7]],
+    }
+    
+    return buttons, axes
+
+
 class DjiRs3Node(Node):
     def __init__(self):
         super().__init__("dji_rs3_node")
@@ -80,13 +108,17 @@ class DjiRs3Node(Node):
         
         self.cmd_list_ = []
 
-        self.move_to(dyaw=180, dpitch=0, droll=0, time_ms=0)
+        # self.recenter()
+        self.move_to(dyaw=90, dpitch=0, droll=0, time_ms=0)
         self.timer_ = self.create_timer(1.0, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
         
     def joy_callback(self, msg):
-        self.get_logger().info(f'joy axes: {msg.axes}')
+        buttons, axes = joymsg2f510(msg)
+        if buttons['joy_right'] == 1:
+            # move to the home position
+            self.recenter()
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
@@ -103,6 +135,23 @@ class DjiRs3Node(Node):
             except can.CanError:
                 self.get_logger().error("Faild to send a CAN message.")
             
+    def recenter(self,):
+        hex_data = struct.pack(
+            '<2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
+            0xFE,   # Operating Mode
+            0x01,   # execute Recenter once
+        )
+        pack_data = ['{:02X}'.format(i) for i in hex_data]
+        cmd_data = ':'.join(pack_data)
+        cmd = command_generator(
+            cmd_type='03',  # command frame / Reply is reqired after data is sent.
+            cmd_set='0E',
+            cmd_id='0E',
+            data=cmd_data
+        )
+        self.send_can_message(cmd)
+        self.cmd_list_.append(cmd)
+            
     def move_to(self, dyaw: float, dpitch: float, droll: float, time_ms: int = 0):
         hex_data = struct.pack(
             '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
@@ -115,12 +164,13 @@ class DjiRs3Node(Node):
         pack_data = ['{:02X}'.format(i) for i in hex_data]
         cmd_data = ':'.join(pack_data)
         cmd = command_generator(
-            cmd_type='03',
+            cmd_type='03',  # command frame / Reply is reqired after data is sent.
             cmd_set='0E',
             cmd_id='00',
             data=cmd_data
         )
         self.send_can_message(cmd)
+        self.cmd_list_.append(cmd)
         
     def _process_cmd(self, data):
         cmd_type = data[3]
@@ -152,16 +202,17 @@ class DjiRs3Node(Node):
                 data_type = data[15]
                 
                 # return code
+                serial = bytearray2value(data[8:10])
                 if return_code == 0x00:
-                    self.get_logger().info('Command execuition succeeds.')
+                    self.get_logger().info(f'[{serial}] Command execuition succeeds.')
                 elif return_code == 0x01:
-                    self.get_logger().error('Command parse error.')
+                    self.get_logger().error(f'[{serial}] Command parse error.')
                     return None
                 elif return_code == 0x02:
-                    self.get_logger().error('Command execuition fails.')
+                    self.get_logger().error(f'[{serial}] Command execuition fails.')
                     return None
                 elif return_code == 0xFF:
-                    self.get_logger().error('Undefined error.')
+                    self.get_logger().error(f'[{serial}] Undefined error.')
                     return None
 
                 yaw = bytearray2value(data[16:18], signed=True) * 0.1
@@ -244,6 +295,30 @@ class DjiRs3Node(Node):
                 
         self.get_logger().debug(f'dji_command_parser() failed for {bytearray2string(frame)}')
         return None
+    
+    def wait_reply_frame(self, ):
+        dji_cmd = []
+        length = -1 # the excepted command length
+        stime = time.time()
+        while True:
+            msg = self.bus_.recv()
+            if msg is None:
+                break
+            
+            if msg.data[0] == 0xAA:
+                length = msg.data[1]
+                dji_cmd = msg.data
+            elif len(dji_cmd) > 0:
+                dji_cmd += msg.data
+                if len(dji_cmd) >= length > 0:
+                    dji_cmd = dji_cmd[:length]
+                    result = self.dji_command_parser(dji_cmd)
+                    if result is not None and result['type'] == 'attitude_angle':
+                        return result
+        
+            if len(self.cmd_list_) == 0 or time.time() - stime > TIMEOUT:
+                break
+        return None
    
     def loop(self):
         self.bus_.flush_tx_buffer()
@@ -265,28 +340,8 @@ class DjiRs3Node(Node):
         self.cmd_list_.clear()
         self.cmd_list_.append(cmd)
 
-        dji_cmd = []
-        length = -1 # the excepted command length
-        stime = time.time()
-        while True:
-            msg = self.bus_.recv()
-            if msg is None:
-                break
-            
-            if msg.data[0] == 0xAA:
-                length = msg.data[1]
-                dji_cmd = msg.data
-            elif len(dji_cmd) > 0:
-                dji_cmd += msg.data
-                if len(dji_cmd) >= length > 0:
-                    dji_cmd = dji_cmd[:length]
-                    result = self.dji_command_parser(dji_cmd)
-                    if result is not None and result['type'] == 'attitude_angle':
-                        self.get_logger().debug('End of Loop.')
-                        break
-        
-            if len(self.cmd_list_) == 0 or time.time() - stime > TIMEOUT:
-                break
+        self.wait_reply_frame()
+        self.get_logger().debug('End of Loop.')
                     
 
 def main(args=None):
