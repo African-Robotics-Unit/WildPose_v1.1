@@ -29,16 +29,17 @@
 #define HWSERIAL Serial1
 
 
-int motor = 3; //define motor as pin 3
-int pwm_speed = 127; //initial speed of motor
-int value = 10; //value to increment or decrement motor speed by on key press
+int motor = 3; // define motor as pin 3
+int pwm_speed = 127; // initial speed of motor
+int value = 10; // value to increment or decrement motor speed by on key press
 
 char c;
 
-const byte numChars = 32; //Set a read-only value of 32 bytes and assign it to numChars
-char receivedChars[numChars]; //define variable of type character as an array of size numChars
+const byte numChars = 32; // Set a read-only value of 32 bytes and assign it to numChars
+char receivedChars[numChars]; // define variable of type character as an array of size numChars
 
-boolean newData = false; //variable to control interaction between my functions
+boolean newData = false;  // variable to control interaction between my functions
+char endMarker = '\n';
 
 const byte newString = 32;
 char access[newString];
@@ -53,7 +54,7 @@ void setup()
   pinMode(motor, OUTPUT); //initialize motor
   analogWrite(motor, pwm_speed); //start motor at set value
 
-  Serial.println("<Arduino is ready>");
+  Serial.println("<Teensy is ready.>");
 }
 
 void loop()
@@ -64,15 +65,13 @@ void loop()
 
 void start_input() {
   static byte ndx = 0;
-  char endMarker = '\n';
   char rc;  // receiver
 
   while (HWSERIAL.available() > 0 && newData == false) {
     rc = HWSERIAL.read();
 
     if (rc != endMarker) {
-      receivedChars[ndx] = rc;
-      ndx++;
+      receivedChars[ndx++] = rc;
       if (ndx >= numChars) {
         ndx = numChars - 1;
       }
@@ -85,22 +84,18 @@ void start_input() {
   }
 }
 
-void motor_ctl() //function to allow user input to control motor, display current speed,
-//and tell user when max or minimum speed is reached
+void motor_ctl() //function to allow user input to control motor, display current speed, and tell user when max or minimum speed is reached
 {
   c = receivedChars[0];
   if (c == '+' && newData == true)
   {
-    if (pwm_speed <= (255 - value)) //Do this when current motor speed is less than
-      //or equal to specified cut off value
+    if (pwm_speed <= (255 - value)) //Do this when current motor speed is less than or equal to specified cut off value
     {
       pwm_speed = pwm_speed + value;
       Serial.print("Motor speed is ");
       Serial.println(pwm_speed);
     }
-    else if ((pwm_speed > (255 - value)) && (pwm_speed < 255)) //Do this when motor
-      //speed is above
-      //cut off value
+    else if ((pwm_speed > (255 - value)) && (pwm_speed < 255)) //Do this when motor speed is above cut off value
     {
       pwm_speed = 255;
       Serial.print("Motor speed is ");
@@ -143,8 +138,7 @@ void motor_ctl() //function to allow user input to control motor, display curren
     int input;
     input = atoi(access); //integer value from string access
 
-    if (((input > 0) && (input <= 255)) || (strcmp(access, "0") == 0)) // if integer value of array is above 0 and equal to or less than 255.
-    //or if the result of comparing string access to the string "0" is 0/the same.
+    if (((input > 0) && (input <= 255)) || (strcmp(access, "0") == 0)) // if integer value of array is above 0 and equal to or less than 255. or if the result of comparing string access to the string "0" is 0/the same.
     {
       newSpeed = input; //convert new array string to an integer value
       pwm_speed = newSpeed;
