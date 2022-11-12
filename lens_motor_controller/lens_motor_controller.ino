@@ -27,6 +27,9 @@
 
 
 #define HWSERIAL Serial1
+#define Encoder_A 2
+#define Encoder_B 3
+#define Encoder_C 4
 
 
 int motor = 3; // define motor as pin 3
@@ -44,6 +47,10 @@ char endMarker = '\n';
 const byte newString = 32;
 char access[newString];
 
+pluseCounterA = 0;
+pluseCounterB = 0;
+pluseCounterC = 0;
+
 
 void setup()
 {
@@ -53,8 +60,45 @@ void setup()
   // motor pin setting
   pinMode(motor, OUTPUT); //initialize motor
   analogWrite(motor, pwm_speed); //start motor at set value
+  // motor encoder
+  pinMode(Encoder_A, INPUT);
+  pinMode(Encoder_B, INPUT);
+  pinMode(Encoder_C, INPUT);
+  attachInterrupt(digitalPinToInterrupt(Encoder_A), DC_Motor_Encoder_A, RISING);
+  attachInterrupt(digitalPinToInterrupt(Encoder_B), DC_Motor_Encoder_B, RISING);
+  attachInterrupt(digitalPinToInterrupt(Encoder_C), DC_Motor_Encoder_C, RISING);
 
   Serial.println("<Teensy is ready.>");
+}
+
+void DC_Motor_Encoder_A(){
+  int b = digitalRead(Encoder_A);
+  if(b > 0){
+    pluseCounterA++;
+  }
+  else{
+    pluseCounterA--;
+  }
+}
+
+void DC_Motor_Encoder_B(){
+  int b = digitalRead(Encoder_B);
+  if(b > 0){
+    pluseCounterB++;
+  }
+  else{
+    pluseCounterB--;
+  }
+}
+
+void DC_Motor_Encoder_C(){
+  int b = digitalRead(Encoder_C);
+  if(b > 0){
+    pluseCounterC++;
+  }
+  else{
+    pluseCounterC--;
+  }
 }
 
 void loop()
