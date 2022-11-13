@@ -368,6 +368,14 @@ References
 - [Permission denied when try connect on /dev/ttyTHS1](https://forums.developer.nvidia.com/t/permission-denied-when-try-connect-on-dev-ttyths1/210479/10)
 
 
+#### Jetson AGX Orin for Teensy 4.0
+
+This is the setup on Jetson AGX Orin for Teensy 4.0.
+
+```bash
+$ sudo usermod -a -G tty naoya
+```
+
 ### Host Computer
 
 To develop ROS2 programs on your host/local computer, VS Code ROS Extension was used.

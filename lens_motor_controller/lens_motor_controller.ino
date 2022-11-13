@@ -25,11 +25,18 @@
 // }
 
 
+#include <Motoron.h>
 
-#define HWSERIAL Serial1
-#define Encoder_A 2
-#define Encoder_B 3
-#define Encoder_C 4
+#define HWSERIAL Serial2
+
+// Motor driver settings
+MotoronI2C mc(16);  // Motoron controller
+#define Encoder_Aa 13
+#define Encoder_Ab 12
+#define Encoder_Ba 11
+#define Encoder_Bb 10
+#define Encoder_Ca 5
+#define Encoder_Cb 4
 
 
 int motor = 3; // define motor as pin 3
