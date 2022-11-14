@@ -30,13 +30,14 @@
 #define HWSERIAL Serial2
 
 // Motor driver settings
-MotoronI2C mc(16);  // Motoron controller
-#define Encoder_Aa 13
-#define Encoder_Ab 12
-#define Encoder_Ba 11
-#define Encoder_Bb 10
-#define Encoder_Ca 5
-#define Encoder_Cb 4
+MotoronI2C mc(address=16);  // Motoron controller
+#define WIRE Wire // using I2C 0
+#define Encoder_1A 13
+#define Encoder_1B 12
+#define Encoder_2A 11
+#define Encoder_2B 10
+#define Encoder_3A 5
+#define Encoder_3B 4
 
 
 int motor = 3; // define motor as pin 3
@@ -64,18 +65,37 @@ void setup()
   // serial setting
   Serial.begin(115200);
   HWSERIAL.begin(115200);
-  // motor pin setting
-  pinMode(motor, OUTPUT); //initialize motor
-  analogWrite(motor, pwm_speed); //start motor at set value
-  // motor encoder
-  pinMode(Encoder_A, INPUT);
-  pinMode(Encoder_B, INPUT);
-  pinMode(Encoder_C, INPUT);
-  attachInterrupt(digitalPinToInterrupt(Encoder_A), DC_Motor_Encoder_A, RISING);
-  attachInterrupt(digitalPinToInterrupt(Encoder_B), DC_Motor_Encoder_B, RISING);
-  attachInterrupt(digitalPinToInterrupt(Encoder_C), DC_Motor_Encoder_C, RISING);
 
-  Serial.println("<Teensy is ready.>");
+  // motor encoder
+  pinMode(Encoder_1A, INPUT);
+  pinMode(Encoder_1B, INPUT);
+  pinMode(Encoder_2A, INPUT);
+  pinMode(Encoder_2B, INPUT);
+  pinMode(Encoder_3A, INPUT);
+  pinMode(Encoder_3B, INPUT);
+  attachInterrupt(digitalPinToInterrupt(Encoder_1A), DC_Motor_Encoder_A, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(Encoder_1B), DC_Motor_Encoder_A, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(Encoder_2A), DC_Motor_Encoder_A, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(Encoder_2B), DC_Motor_Encoder_A, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(Encoder_3A), DC_Motor_Encoder_A, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(Encoder_3B), DC_Motor_Encoder_A, CHANGE);
+
+  // motor pin setting
+  WIRE.begin(); // I2C with master mode
+  mc.reinitialize();
+  mc.disableCrc();
+  mc.clearResetFlag();
+  // Configure motor 1
+  mc.setMaxAcceleration(1, 140);
+  mc.setMaxDeceleration(1, 300);
+  // Configure motor 2
+  mc.setMaxAcceleration(2, 200);
+  mc.setMaxDeceleration(2, 300);
+  // Configure motor 3
+  mc.setMaxAcceleration(3, 80);
+  mc.setMaxDeceleration(3, 300);
+
+  Serial.println("INFO: Teensy is ready.");
 }
 
 void DC_Motor_Encoder_A(){
