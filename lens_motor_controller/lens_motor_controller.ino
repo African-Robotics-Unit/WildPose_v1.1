@@ -94,8 +94,8 @@ void start_input() {
   static byte ndx = 0;
   char rc;  // receiver
 
-  while (HWSERIAL.available() > 0 && NewData == false) {
-    rc = HWSERIAL.read();
+  while (Serial.available() > 0 && NewData == false) {
+    rc = Serial.read();
 
     if (rc != EndMarker) {
       ReceivedChars[ndx++] = rc;
