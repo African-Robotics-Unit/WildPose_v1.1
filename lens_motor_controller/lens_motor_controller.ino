@@ -84,8 +84,8 @@ void loop()
 
   // motor position
   if (PreviousPluseCounter1 != PluseCounter1) {
-    HWSERIAL.printf("INFO: Pluse Count = %d\n", PluseCounter1);
-    HWSERIAL.printf("INFO: Revolution  = %f\n", PluseCounter1 / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
+    HWSERIAL.printf("p%d\n", PluseCounter1);
+    HWSERIAL.printf("r%f\n", PluseCounter1 / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
     PreviousPluseCounter1 = PluseCounter1;
   }
 }
@@ -109,6 +109,10 @@ void start_input() {
       NewData = true;
     }
   }
+}
+
+void set_speed(int motor, int speed) {
+  mc.setSpeed(motor, -speed);
 }
 
 void motor_ctl() {  //function to allow user input to control motor, display current speed, and tell user when max or minimum speed is reached
@@ -169,7 +173,7 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
   }
 
   else {
-    mc.setSpeed(1, MotorSpeed1); //Commit new speeds given by
+    set_speed(1, MotorSpeed1); //Commit new speeds given by
     //output of above statements
     NewData = false;
   }

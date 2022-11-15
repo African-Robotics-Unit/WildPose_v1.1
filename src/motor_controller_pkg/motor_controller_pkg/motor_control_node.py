@@ -36,6 +36,10 @@ def joymsg2f510(msg):
 class MotorControlNode(Node):
     def __init__(self):
         super().__init__('motor_control_node')
+        
+        # Motor parameters
+        self.revolution_ = 0    # the revolution of the gearmotor output 
+        self.pluse_counter_ = 0
 
         # Serial setting
         self.serial_port_ = serial.Serial(
@@ -66,8 +70,24 @@ class MotorControlNode(Node):
         self.serial_port_.write('test'.encode())
         while self.serial_port_.inWaiting() > 0:
             data = self.serial_port_.readline()
-            if data is not None:
-                self.get_logger().info(data.decode())
+            if data is None:
+                return None
+            
+            data = data.decode()
+            sign = data[0]
+            value = data[1:]
+            if sign == 'r': # get the revolution of the gearmotor output
+                try:
+                    self.revolution_ = float(value)
+                except ValueError:
+                    self.get_logger().error(f'Failed to covnert "{value}" a float value.')
+            elif sign == 'p':   # get the pulse count
+                try:
+                    self.pluse_counter_ = int(value)
+                except ValueError:
+                    self.get_logger().error(f'Failed to covnert "{value}" an int value.')
+                    
+        self.get_logger().info(f'Revolution: {self.revolution_}')
 
     def __del__(self):
         self.serial_port_.close()
