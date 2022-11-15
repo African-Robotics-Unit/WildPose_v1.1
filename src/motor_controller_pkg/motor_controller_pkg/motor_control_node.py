@@ -4,6 +4,8 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
 
+import math
+
 
 def joymsg2f510(msg):
     # Logitech F510
@@ -27,7 +29,7 @@ def joymsg2f510(msg):
         'LT': msg.axes[2],
         'joy_right': [msg.axes[3], msg.axes[4]],
         'RT': msg.axes[5],
-        'd_pad': [msg.axes[6], msg.axes[7]],
+        'dpad': [-msg.axes[6], msg.axes[7]],
     }
 
     return buttons, axes
@@ -40,6 +42,8 @@ class MotorControlNode(Node):
         # Motor parameters
         self.revolution_ = 0    # the revolution of the gearmotor output 
         self.pluse_counter_ = 0
+        self.motor_speed_ = 0
+        self._update_motor_flag = False
 
         # Serial setting
         self.serial_port_ = serial.Serial(
@@ -65,9 +69,24 @@ class MotorControlNode(Node):
 
     def joy_callback(self, msg):
         buttons, axes = joymsg2f510(msg)
+        pre_motor_speed = self.motor_speed_
+        
+        if axes['dpad'][0] != 0:    # motor 1
+            self.motor_speed_ = int(math.copysign(100, axes['dpad'][0]))
+            self._update_motor_flag = True
+        else:
+            self.motor_speed_ = 0
+            self._update_motor_flag = True
+
 
     def check_motor_state(self,):
-        self.serial_port_.write('test'.encode())
+        # set motor status
+        if self._update_motor_flag:
+            self.serial_port_.write(f't{self.motor_speed_}\n'.encode())
+            self.get_logger().debug(f'set motor speed: {self.motor_speed_}')
+            self._update_motor_flag = False
+        
+        # get motor status
         while self.serial_port_.inWaiting() > 0:
             data = self.serial_port_.readline()
             if data is None:
@@ -86,8 +105,10 @@ class MotorControlNode(Node):
                     self.pluse_counter_ = int(value)
                 except ValueError:
                     self.get_logger().error(f'Failed to covnert "{value}" an int value.')
+            else:
+                self.get_logger().error(f'Undefined command: {data}')
                     
-        self.get_logger().info(f'Revolution: {self.revolution_}')
+        # self.get_logger().info(f'Revolution: {self.revolution_}')
 
     def __del__(self):
         self.serial_port_.close()
