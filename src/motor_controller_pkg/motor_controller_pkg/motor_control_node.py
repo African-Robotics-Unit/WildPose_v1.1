@@ -63,6 +63,7 @@ class MotorControlNode(Node):
             timeout=0.5
         )
         self.serial_port_.flushInput()
+        self.reset_motor()
 
         # Logitech F510
         self.joy_ = self.create_subscription(
@@ -88,7 +89,10 @@ class MotorControlNode(Node):
             
         if buttons['Logitech'] == 1:
             self._reset_motor_flag = True
-
+            
+    def reset_motor(self):
+        self.serial_port_.write('reset\n'.encode())
+        self.get_logger().info(f'Reset the motor status.')
 
     def check_motor_state(self,):
         # set motor status
@@ -98,8 +102,7 @@ class MotorControlNode(Node):
             self._update_motor_flag = False
             
         if self._reset_motor_flag:
-            self.serial_port_.write('reset\n'.encode())
-            self.get_logger().info(f'Reset the motor status.')
+            self.reset_motor()
             self._reset_motor_flag = False
         
         # get motor status
