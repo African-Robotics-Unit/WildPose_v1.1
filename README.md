@@ -297,6 +297,7 @@ $ cansend can0 223#AA1A000300000000 && \
 References:
 - [Enabling CAN on Nvidia Jetson Xavier Developer Kit](https://medium.com/@ramin.nabati/enabling-can-on-nvidia-jetson-xavier-developer-kit-aaaa3c4d99c9)
 - [hmxf/can_xavier -- GitHub](https://github.com/hmxf/can_xavier)
+- [Controller Area Network (CAN) -- nVIDIA](https://docs.nvidia.com/jetson/archives/r34.1/DeveloperGuide/text/HR/ControllerAreaNetworkCan.html)
 
 #### Remote Desktop
 

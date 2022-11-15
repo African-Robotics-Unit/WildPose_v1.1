@@ -63,6 +63,7 @@ class MotorControlNode(Node):
         buttons, axes = joymsg2f510(msg)
 
     def check_motor_state(self,):
+        self.serial_port_.write('test'.encode())
         while self.serial_port_.inWaiting() > 0:
             data = self.serial_port_.readline()
             if data is not None:

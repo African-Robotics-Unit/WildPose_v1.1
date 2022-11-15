@@ -1,6 +1,6 @@
 #include <Motoron.h>
 
-#define HWSERIAL Serial2
+#define HWSERIAL Serial3
 
 // Motor driver settings
 MotoronI2C mc(16);  // Motoron controller
@@ -84,8 +84,8 @@ void loop()
 
   // motor position
   if (PreviousPluseCounter1 != PluseCounter1) {
-    Serial.printf("INFO: Pluse Count = %d\n", PluseCounter1);
-    Serial.printf("INFO: Revolution  = %f\n", PluseCounter1 / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
+    HWSERIAL.printf("INFO: Pluse Count = %d\n", PluseCounter1);
+    HWSERIAL.printf("INFO: Revolution  = %f\n", PluseCounter1 / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
     PreviousPluseCounter1 = PluseCounter1;
   }
 }

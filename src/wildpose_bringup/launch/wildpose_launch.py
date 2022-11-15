@@ -207,11 +207,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        ximea_cam_driver,
-        image_viewer,
-        dji_rs3_node,
+        # ximea_cam_driver,
+        # image_viewer,
+        # dji_rs3_node,
         gamepad_node,
-        # motor_control_node,
+        motor_control_node,
         # livox_driver,
         # rosbag,
     ])
