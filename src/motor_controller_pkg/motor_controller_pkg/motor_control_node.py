@@ -4,6 +4,8 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
 
+from wildpose_interfaces.msg import MotorStatus
+ 
 import math
 
 
@@ -40,10 +42,16 @@ class MotorControlNode(Node):
         super().__init__('motor_control_node')
         
         # Motor parameters
-        self.revolution_ = 0    # the revolution of the gearmotor output 
+        self.revolution_ = 0.0  # the revolution of the gearmotor output 
         self.pluse_counter_ = 0
         self.motor_speed_ = 0
         self._update_motor_flag = False
+        self._reset_motor_flag = False
+        self.motor_status_publishers_ = [
+            self.create_publisher(MotorStatus, 'motor1', 10),
+            self.create_publisher(MotorStatus, 'motor2', 10),
+            self.create_publisher(MotorStatus, 'motor3', 10),
+        ]
 
         # Serial setting
         self.serial_port_ = serial.Serial(
@@ -77,6 +85,9 @@ class MotorControlNode(Node):
         else:
             self.motor_speed_ = 0
             self._update_motor_flag = True
+            
+        if buttons['Logitech'] == 1:
+            self._reset_motor_flag = True
 
 
     def check_motor_state(self,):
@@ -85,6 +96,11 @@ class MotorControlNode(Node):
             self.serial_port_.write(f't{self.motor_speed_}\n'.encode())
             self.get_logger().debug(f'set motor speed: {self.motor_speed_}')
             self._update_motor_flag = False
+            
+        if self._reset_motor_flag:
+            self.serial_port_.write('reset\n'.encode())
+            self.get_logger().info(f'Reset the motor status.')
+            self._reset_motor_flag = False
         
         # get motor status
         while self.serial_port_.inWaiting() > 0:
@@ -108,7 +124,11 @@ class MotorControlNode(Node):
             else:
                 self.get_logger().error(f'Undefined command: {data}')
                     
-        # self.get_logger().info(f'Revolution: {self.revolution_}')
+        msg = MotorStatus()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.pulse_count = self.pluse_counter_
+        msg.revolution = self.revolution_
+        self.motor_status_publishers_[0].publish(msg)
 
     def __del__(self):
         self.serial_port_.close()

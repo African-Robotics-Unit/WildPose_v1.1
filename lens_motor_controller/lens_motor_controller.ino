@@ -172,6 +172,22 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
     }
   }
 
+  else if (c == 'r' && NewData == true) { // Reset
+    char *p = ReceivedChars;
+    strcpy(Access, p);
+
+    if (Access == "reset\n") {
+      PluseCounter1 = 0;
+      MotorSpeed1 = 0;
+      Serial.println("Reset.");
+      NewData = false;
+    }
+    else {
+      Serial.println(Access);
+      NewData = false;
+    }
+  }
+
   else {
     set_speed(1, MotorSpeed1); //Commit new speeds given by
     //output of above statements
