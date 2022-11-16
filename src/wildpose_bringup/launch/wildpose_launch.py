@@ -19,6 +19,7 @@ cmdline_bd_code = 'livox0000000001'
 
 cur_path = os.path.split(os.path.realpath(__file__))[0] + '/'
 cur_config_path = cur_path + '../config'
+rviz_config_path = os.path.join(cur_config_path, 'livox_lidar.rviz')
 user_config_path = os.path.join(cur_config_path, 'livox_lidar_config.json')
 ################### Livox TELE-15 user-defined parameters end #####################
 
@@ -67,7 +68,7 @@ ximea_cam_parameters = {
 
     'enable_diagnostics': True,
     'data_age_max': 0.1,
-    'pub_frequency': 100.0,
+    'pub_frequency': 170.0,
     'pub_frequency_tolerance': 1.0,
 
     ####################
@@ -149,9 +150,7 @@ def generate_launch_description():
         remappings=[
             ("/image", "/image_raw"),
         ],
-        # parameters=[
-        #     {'image_transport': 'compressed'}
-        # ],
+        arguments=['--ros-args', '--log-level','ERROR'],
         on_exit=launch.actions.Shutdown()
     )
 
@@ -209,9 +208,9 @@ def generate_launch_description():
     return LaunchDescription([
         # ximea_cam_driver,
         # image_viewer,
-        # dji_rs3_node,
+        dji_rs3_node,
         gamepad_node,
         motor_control_node,
-        livox_driver,
+        # livox_driver,
         # rosbag,
     ])

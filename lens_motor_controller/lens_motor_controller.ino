@@ -12,6 +12,7 @@ MotoronI2C mc(16);  // Motoron controller
 #define ENCODER_2B 10
 #define ENCODER_3A 5
 #define ENCODER_3B 4
+#define TIMEOUT 500
 
 // #define N_PULSE_PER_REVOLUTION 48 // 48 counts per revolution of the motor shaft when counting both edges of both channels
 #define N_PULSE_PER_REVOLUTION 24 // 24 counts per revolution of the motor shaft when counting both edges of a single channel
@@ -22,6 +23,7 @@ MotoronI2C mc(16);  // Motoron controller
 // I2C with Motor Driver
 int MotorSpeeds[] = {0, 0, 0};  // -800 ~ +800
 int DSpeed = 50;
+unsigned long LastCmdTime = 0;
 // Encoders
 int PreviousPluseCounters[] = {0, 0, 0};
 int PluseCounters[] = {0, 0, 0};
@@ -45,18 +47,18 @@ void Encoder1AInterrupt() {
 }
 void Encoder2AInterrupt() {
   if (digitalRead(ENCODER_2A) == HIGH) {  // rising edge
-    PluseCounters[1] += (digitalRead(ENCODER_1B) == LOW) ? 1 : -1;
+    PluseCounters[1] += (digitalRead(ENCODER_2B) == LOW) ? 1 : -1;
   }
   else {  // falling edge
-    PluseCounters[1] += (digitalRead(ENCODER_1B) == HIGH) ? 1 : -1;
+    PluseCounters[1] += (digitalRead(ENCODER_2B) == HIGH) ? 1 : -1;
   }
 }
 void Encoder3AInterrupt() {
   if (digitalRead(ENCODER_3A) == HIGH) {  // rising edge
-    PluseCounters[2] += (digitalRead(ENCODER_1B) == LOW) ? 1 : -1;
+    PluseCounters[2] += (digitalRead(ENCODER_3B) == LOW) ? 1 : -1;
   }
   else {  // falling edge
-    PluseCounters[2] += (digitalRead(ENCODER_1B) == HIGH) ? 1 : -1;
+    PluseCounters[2] += (digitalRead(ENCODER_3B) == HIGH) ? 1 : -1;
   }
 }
 
@@ -81,6 +83,7 @@ void setup()
 
   // motor pin setting
   WIRE.begin(); // I2C with master mode
+  LastCmdTime = millis();
   mc.reinitialize();
   mc.disableCrc();
   mc.clearResetFlag();
@@ -112,6 +115,7 @@ void loop()
 void start_input() {
   static byte ndx = 0;
   char rc;  // receiver
+  unsigned long stime = millis();
 
   while (HWSERIAL.available() > 0 && NewData == false) {
     rc = HWSERIAL.read();
@@ -127,6 +131,9 @@ void start_input() {
       ndx = 0;
       NewData = true;
     }
+
+    // timeout
+    if (millis - stime > 500) break;
   }
 }
 
@@ -162,7 +169,6 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
 
     if (strcmp(Access, "reset") == 0) {
       for (int i = 0; i < N_MOTOR; i++) {
-        PreviousPluseCounters[i] = 0;
         PluseCounters[i] = 0;
         MotorSpeeds[i] = 0;
       }
@@ -175,10 +181,18 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
   }
 
   else {
-    for (int i = 0; i < N_MOTOR; i++ ) {
+    // TimeOut process for the fail safe
+    if (millis() - LastCmdTime > TIMEOUT) {
+      for (int i = 0; i < N_MOTOR; i++) {
+        MotorSpeeds[i] = 0;
+      }
+    }
+    // Update the motor speeds
+    for (int i = 0; i < N_MOTOR; i++) {
       set_speed(i+1, MotorSpeeds[i]); //Commit new speeds given by
       Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
     }
+    LastCmdTime = millis();
     //output of above statements
     NewData = false;
   }
