@@ -211,7 +211,7 @@ def generate_launch_description():
         image_viewer,
         dji_rs3_node,
         gamepad_node,
-        # motor_control_node,
-        # livox_driver,
+        motor_control_node,
+        livox_driver,
         # rosbag,
     ])
