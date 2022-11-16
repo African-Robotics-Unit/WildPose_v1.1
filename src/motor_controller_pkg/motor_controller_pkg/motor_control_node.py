@@ -50,7 +50,7 @@ class MotorControlNode(Node):
         self._update_motor_flag = False
         self._reset_motor_flag = False
         self.motor_status_publishers_ = [
-            self.create_publisher(MotorStatus, f'motor{i}', 10)
+            self.create_publisher(MotorStatus, f'motor{i+1}', 10)
             for i in range(self.n_motor_)
         ]
 
