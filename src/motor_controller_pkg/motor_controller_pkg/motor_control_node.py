@@ -43,7 +43,7 @@ class MotorControlNode(Node):
         
         # Motor parameters
         self.n_motor_ = n_motor
-        self.motor_speed_ = 100
+        self.motor_speed_ = 200
         self.revolutions_ = [0.0] * self.n_motor_   # the revolution of the gearmotor output 
         self.pluse_counters_ = [0] * self.n_motor_
         self.motor_speeds_ = [0] * self.n_motor_
