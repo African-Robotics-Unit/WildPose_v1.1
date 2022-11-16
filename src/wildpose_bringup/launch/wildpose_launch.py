@@ -170,6 +170,7 @@ def generate_launch_description():
         parameters=[
             {'dev', '/dev/input/js0'},
             {'dev_name', 'Wireless Gamepad F710'},
+            {'autorepeat_rate', '0.1'}
         ],
         arguments=['--ros-args',
             '--log-level','ERROR'

@@ -61,7 +61,8 @@ class MotorControlNode(Node):
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=0.5
+            timeout=0.1,    # read timeout
+            write_timeout=0.1,  
         )
         self.serial_port_.flushInput()
         self.reset_motor()
@@ -117,7 +118,7 @@ class MotorControlNode(Node):
         if self._update_motor_flag:
             for i in range(self.n_motor_):
                 self.serial_port_.write(f't{i}{self.motor_speeds_[i]}\n'.encode())
-            self.get_logger().info(f'set motor speed: {self.motor_speeds_}')
+            self.get_logger().debug(f'set motor speed: {self.motor_speeds_}')
             self._update_motor_flag = False
             
         if self._reset_motor_flag:
@@ -137,20 +138,23 @@ class MotorControlNode(Node):
                 return None
             # parser
             sign = data[0]
-            motor_id = int(data[1])
-            value = data[2:]
-            if sign == 'r': # get the revolution of the gearmotor output
-                try:
-                    self.revolutions_[motor_id] = float(value)
-                except ValueError:
-                    self.get_logger().error(f'Failed to covnert "{value}" a float value.')
-            elif sign == 'p':   # get the pulse count
-                try:
-                    self.pluse_counters_[motor_id] = int(value)
-                except ValueError:
-                    self.get_logger().error(f'Failed to covnert "{value}" an int value.')
-            else:
-                self.get_logger().error(f'Undefined command: {data}')
+            try:
+                motor_id = int(data[1])
+                value = data[2:]
+                if sign == 'r': # get the revolution of the gearmotor output
+                    try:
+                        self.revolutions_[motor_id] = float(value)
+                    except ValueError:
+                        self.get_logger().error(f'Failed to covnert "{value}" a float value.')
+                elif sign == 'p':   # get the pulse count
+                    try:
+                        self.pluse_counters_[motor_id] = int(value)
+                    except ValueError:
+                        self.get_logger().error(f'Failed to covnert "{value}" an int value.')
+                else:
+                    self.get_logger().error(f'Undefined command: {data}')
+            except ValueError:
+                self.get_logger().error(f'Failed to covnert "{data[1]}" a int value.')
                     
         for i in range(self.n_motor_):
             msg = MotorStatus()
