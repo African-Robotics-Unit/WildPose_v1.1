@@ -5,6 +5,7 @@
 // Motor driver settings
 MotoronI2C mc(16);  // Motoron controller
 #define WIRE Wire // using I2C 0
+#define N_MOTOR 3 // the number of motors
 #define ENCODER_1A 14
 #define ENCODER_1B 15
 #define ENCODER_2A 11
@@ -19,13 +20,11 @@ MotoronI2C mc(16);  // Motoron controller
 
 // Global variables
 // I2C with Motor Driver
-int MotorSpeed1 = 0;  // -800 ~ +800
-int DSpeed = 10;
+int MotorSpeeds[] = {0, 0, 0};  // -800 ~ +800
+int DSpeed = 50;
 // Encoders
-int PreviousPluseCounter1 = 0;
-int PluseCounter1 = 0;
-int pluseCounter2 = 0;
-int pluseCounter3 = 0;
+int PreviousPluseCounters[] = {0, 0, 0};
+int PluseCounters[] = {0, 0, 0};
 // Serial
 char c;
 const byte NumChars = 32; // Set a read-only value of 32 bytes and assign it to NumChars
@@ -36,12 +35,28 @@ const byte NewString = 32;
 char Access[NewString];
 
 
-void EncoderAInterrupt() {
+void Encoder1AInterrupt() {
   if (digitalRead(ENCODER_1A) == HIGH) {  // rising edge
-    PluseCounter1 += (digitalRead(ENCODER_1B) == LOW) ? 1 : -1;
+    PluseCounters[0] += (digitalRead(ENCODER_1B) == LOW) ? 1 : -1;
   }
   else {  // falling edge
-    PluseCounter1 += (digitalRead(ENCODER_1B) == HIGH) ? 1 : -1;
+    PluseCounters[0] += (digitalRead(ENCODER_1B) == HIGH) ? 1 : -1;
+  }
+}
+void Encoder2AInterrupt() {
+  if (digitalRead(ENCODER_2A) == HIGH) {  // rising edge
+    PluseCounters[1] += (digitalRead(ENCODER_1B) == LOW) ? 1 : -1;
+  }
+  else {  // falling edge
+    PluseCounters[1] += (digitalRead(ENCODER_1B) == HIGH) ? 1 : -1;
+  }
+}
+void Encoder3AInterrupt() {
+  if (digitalRead(ENCODER_3A) == HIGH) {  // rising edge
+    PluseCounters[2] += (digitalRead(ENCODER_1B) == LOW) ? 1 : -1;
+  }
+  else {  // falling edge
+    PluseCounters[2] += (digitalRead(ENCODER_1B) == HIGH) ? 1 : -1;
   }
 }
 
@@ -55,23 +70,25 @@ void setup()
   // motor encoder
   pinMode(ENCODER_1A, INPUT);
   pinMode(ENCODER_1B, INPUT);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_1A), EncoderAInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_1A), Encoder1AInterrupt, CHANGE);
   // attachInterrupt(digitalPinToInterrupt(ENCODER_1B), EncoderBInterrupt, CHANGE);
+  pinMode(ENCODER_2A, INPUT);
+  pinMode(ENCODER_2B, INPUT);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_2A), Encoder2AInterrupt, CHANGE);
+  pinMode(ENCODER_3A, INPUT);
+  pinMode(ENCODER_3B, INPUT);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_3A), Encoder3AInterrupt, CHANGE);
 
   // motor pin setting
   WIRE.begin(); // I2C with master mode
   mc.reinitialize();
   mc.disableCrc();
   mc.clearResetFlag();
-  // Configure motor 1
-  mc.setMaxAcceleration(1, 140);
-  mc.setMaxDeceleration(1, 300);
-  // Configure motor 2
-  mc.setMaxAcceleration(2, 200);
-  mc.setMaxDeceleration(2, 300);
-  // Configure motor 3
-  mc.setMaxAcceleration(3, 80);
-  mc.setMaxDeceleration(3, 300);
+  // Configure motors
+  for (int i = 0; i < N_MOTOR; i++) {
+    mc.setMaxAcceleration(i, 140);
+    mc.setMaxDeceleration(i, 300);
+  }
 
   Serial.println("INFO: Teensy is ready.");
 }
@@ -83,10 +100,12 @@ void loop()
   motor_ctl(); //function to control speed on key press
 
   // motor position
-  if (PreviousPluseCounter1 != PluseCounter1) {
-    HWSERIAL.printf("p%d\n", PluseCounter1);
-    HWSERIAL.printf("r%f\n", PluseCounter1 / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
-    PreviousPluseCounter1 = PluseCounter1;
+  for (int i = 0; i < N_MOTOR; i++) {
+    if (PreviousPluseCounters[i] != PluseCounters[i]) {
+      HWSERIAL.printf("p%d%d\n", i, PluseCounters[i]);
+      HWSERIAL.printf("r%d%f\n", i, PluseCounters[i] / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
+      PreviousPluseCounters[i] = PluseCounters[i];
+    }
   }
 }
 
@@ -117,53 +136,18 @@ void set_speed(int motor, int speed) {
 
 void motor_ctl() {  //function to allow user input to control motor, display current speed, and tell user when max or minimum speed is reached
   c = ReceivedChars[0];
-  if (c == '+' && NewData == true) {
-    if (MotorSpeed1 <= (800 - DSpeed)) { //Do this when current motor speed is less than or equal to specified cut off value
-      MotorSpeed1 += DSpeed;
-      Serial.print("Motor speed is ");
-      Serial.println(MotorSpeed1);
-    }
-    else if (((800 - DSpeed) < MotorSpeed1) && (MotorSpeed1 <= 800)) {  //Do this when motor speed is above cut off value
-      MotorSpeed1 = 800;
-      Serial.print("Motor speed is ");
-      Serial.println(MotorSpeed1);
-    }
-    else {  //Do this when key is pressed while motor already at max speed
-      Serial.println("Giving her all she's got");
-    }
-    NewData = false;
-  }
-
-  else if (c == '-' && NewData == true) { //On - key press
-    if (DSpeed <= MotorSpeed1) { //Do this when speed is above cut off value
-      MotorSpeed1 = MotorSpeed1 - DSpeed;
-      Serial.print("Motor speed is ");
-      Serial.println(MotorSpeed1);
-    }
-    else if ((-800 <= MotorSpeed1) && (MotorSpeed1 < DSpeed)) {  //Do this when speed is
-      //below cut off value
-      MotorSpeed1 = 0;
-      Serial.print("Motor speed is ");
-      Serial.println(MotorSpeed1);
-    }
-    else {  //When motor is already at lowest possible
-      Serial.println("Reverse speed not possible");
-    }
-    NewData = false;
-  }
-
-  else if (c == 't' && NewData == true) { //On 't' input
+  
+  if (c == 't' && NewData == true) { //On 't' input
     int newSpeed;
-    char *p = ReceivedChars + 1; //start reading string at second value
+    c = ReceivedChars[1];
+    char *p = ReceivedChars + 2; //start reading string at second value
     strcpy(Access, p); // copy string value from ReceivedChars to access starting at second value
-    int input;
-    input = atoi(Access); //integer value from string Access
+    int input = atoi(Access); //integer value from string Access
+    int motor_id = c - '0';
 
     if ((-800 <= input) && (input <= 800)) {  // if integer value of array is above 0 and equal to or less than 800. or if the result of comparing string Access to the string "0" is 0/the same.
       newSpeed = input; //convert new array string to an integer value
-      MotorSpeed1 = newSpeed;
-      Serial.print("Motor speed is ");
-      Serial.println(MotorSpeed1);
+      MotorSpeeds[motor_id] = newSpeed;
       NewData = false;
     }
     else {
@@ -177,8 +161,11 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
     strcpy(Access, p);
 
     if (strcmp(Access, "reset") == 0) {
-      PluseCounter1 = 0;
-      MotorSpeed1 = 0;
+      for (int i = 0; i < N_MOTOR; i++) {
+        PreviousPluseCounters[i] = 0;
+        PluseCounters[i] = 0;
+        MotorSpeeds[i] = 0;
+      }
       Serial.println("Reset.");
       NewData = false;
     }
@@ -188,7 +175,10 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
   }
 
   else {
-    set_speed(1, MotorSpeed1); //Commit new speeds given by
+    for (int i = 0; i < N_MOTOR; i++ ) {
+      set_speed(i+1, MotorSpeeds[i]); //Commit new speeds given by
+      Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
+    }
     //output of above statements
     NewData = false;
   }

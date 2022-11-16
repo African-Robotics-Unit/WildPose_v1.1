@@ -38,19 +38,20 @@ def joymsg2f510(msg):
 
 
 class MotorControlNode(Node):
-    def __init__(self):
+    def __init__(self, n_motor=3):
         super().__init__('motor_control_node')
         
         # Motor parameters
-        self.revolution_ = 0.0  # the revolution of the gearmotor output 
-        self.pluse_counter_ = 0
-        self.motor_speed_ = 0
+        self.n_motor_ = n_motor
+        self.motor_speed_ = 100
+        self.revolutions_ = [0.0] * self.n_motor_   # the revolution of the gearmotor output 
+        self.pluse_counters_ = [0] * self.n_motor_
+        self.motor_speeds_ = [0] * self.n_motor_
         self._update_motor_flag = False
         self._reset_motor_flag = False
         self.motor_status_publishers_ = [
-            self.create_publisher(MotorStatus, 'motor1', 10),
-            self.create_publisher(MotorStatus, 'motor2', 10),
-            self.create_publisher(MotorStatus, 'motor3', 10),
+            self.create_publisher(MotorStatus, f'motor{i}', 10)
+            for i in range(self.n_motor_)
         ]
 
         # Serial setting
@@ -78,15 +79,32 @@ class MotorControlNode(Node):
 
     def joy_callback(self, msg):
         buttons, axes = joymsg2f510(msg)
-        pre_motor_speed = self.motor_speed_
         
-        if axes['dpad'][0] != 0:    # motor 1
-            self.motor_speed_ = int(math.copysign(100, axes['dpad'][0]))
+        # motor 1
+        if axes['dpad'][0] != 0:    
+            self.motor_speeds_[0] = int(math.copysign(self.motor_speed_, axes['dpad'][0]))
             self._update_motor_flag = True
         else:
-            self.motor_speed_ = 0
+            self.motor_speeds_[0] = 0
+            self._update_motor_flag = True
+
+        # motor 2
+        if axes['dpad'][1] != 0:    
+            self.motor_speeds_[1] = int(math.copysign(self.motor_speed_, axes['dpad'][1]))
+            self._update_motor_flag = True
+        else:
+            self.motor_speeds_[1] = 0
+            self._update_motor_flag = True
+
+        # motor 3
+        if axes['joy_left'][1] != 0:    
+            self.motor_speeds_[2] = int(math.copysign(self.motor_speed_, axes['joy_left'][1]))
+            self._update_motor_flag = True
+        else:
+            self.motor_speeds_[2] = 0
             self._update_motor_flag = True
             
+        # reset
         if buttons['Logitech'] == 1:
             self._reset_motor_flag = True
             
@@ -97,8 +115,9 @@ class MotorControlNode(Node):
     def check_motor_state(self,):
         # set motor status
         if self._update_motor_flag:
-            self.serial_port_.write(f't{self.motor_speed_}\n'.encode())
-            self.get_logger().debug(f'set motor speed: {self.motor_speed_}')
+            for i in range(self.n_motor_):
+                self.serial_port_.write(f't{i}{self.motor_speeds_[i]}\n'.encode())
+            self.get_logger().debug(f'set motor speed: {self.motor_speeds_}')
             self._update_motor_flag = False
             
         if self._reset_motor_flag:
@@ -107,31 +126,38 @@ class MotorControlNode(Node):
         
         # get motor status
         while self.serial_port_.inWaiting() > 0:
+            # get serial signals
             data = self.serial_port_.readline()
             if data is None:
                 return None
-            
+            # convert the serial
             data = data.decode()
+            if len(data) < 3:
+                self.get_logger().error(f'Undefined command: {data}')
+                return None
+            # parser
             sign = data[0]
-            value = data[1:]
+            motor_id = int(data[1])
+            value = data[2:]
             if sign == 'r': # get the revolution of the gearmotor output
                 try:
-                    self.revolution_ = float(value)
+                    self.revolutions_[motor_id] = float(value)
                 except ValueError:
                     self.get_logger().error(f'Failed to covnert "{value}" a float value.')
             elif sign == 'p':   # get the pulse count
                 try:
-                    self.pluse_counter_ = int(value)
+                    self.pluse_counters_[motor_id] = int(value)
                 except ValueError:
                     self.get_logger().error(f'Failed to covnert "{value}" an int value.')
             else:
                 self.get_logger().error(f'Undefined command: {data}')
                     
-        msg = MotorStatus()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.pulse_count = self.pluse_counter_
-        msg.revolution = self.revolution_
-        self.motor_status_publishers_[0].publish(msg)
+        for i in range(self.n_motor_):
+            msg = MotorStatus()
+            msg.header.stamp = self.get_clock().now().to_msg()
+            msg.pulse_count = self.pluse_counters_[i]
+            msg.revolution = self.revolutions_[i]
+            self.motor_status_publishers_[i].publish(msg)
 
     def __del__(self):
         self.serial_port_.close()
