@@ -297,6 +297,7 @@ $ cansend can0 223#AA1A000300000000 && \
 References:
 - [Enabling CAN on Nvidia Jetson Xavier Developer Kit](https://medium.com/@ramin.nabati/enabling-can-on-nvidia-jetson-xavier-developer-kit-aaaa3c4d99c9)
 - [hmxf/can_xavier -- GitHub](https://github.com/hmxf/can_xavier)
+- [Controller Area Network (CAN) -- nVIDIA](https://docs.nvidia.com/jetson/archives/r34.1/DeveloperGuide/text/HR/ControllerAreaNetworkCan.html)
 
 #### Remote Desktop
 
@@ -367,6 +368,14 @@ References
 - [Jetson Nano – UART](https://jetsonhacks.com/2019/10/10/jetson-nano-uart/)
 - [Permission denied when try connect on /dev/ttyTHS1](https://forums.developer.nvidia.com/t/permission-denied-when-try-connect-on-dev-ttyths1/210479/10)
 
+
+#### Jetson AGX Orin for Teensy 4.0
+
+This is the setup on Jetson AGX Orin for Teensy 4.0.
+
+```bash
+$ sudo usermod -a -G tty naoya
+```
 
 ### Host Computer
 
