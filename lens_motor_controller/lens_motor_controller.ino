@@ -90,10 +90,10 @@ void setup()
   // Configure motors
   for (int i = 0; i < N_MOTOR; i++) {
     mc.setMaxAcceleration(i, 140);
-    mc.setMaxDeceleration(i, 300);
+    mc.setMaxDeceleration(i, 200);
   }
 
-  Serial.println("INFO: Teensy is ready.");
+  // Serial.println("INFO: Teensy is ready.");
 }
 
 
@@ -112,12 +112,18 @@ void loop()
   }
 }
 
+void serial_flush(void) {
+  while (HWSERIAL.available())
+    HWSERIAL.read();
+}
+
+
 void start_input() {
   static byte ndx = 0;
   char rc;  // receiver
   unsigned long stime = millis();
 
-  while (HWSERIAL.available() > 0 && NewData == false) {
+  while (HWSERIAL.available() && NewData == false) {
     rc = HWSERIAL.read();
 
     if (rc != EndMarker) {
@@ -130,27 +136,33 @@ void start_input() {
       ReceivedChars[ndx] = '\0'; // terminate the string
       ndx = 0;
       NewData = true;
+      LastCmdTime = millis();
     }
 
     // timeout
-    if (millis - stime > 500) break;
+    if (millis() - stime > TIMEOUT) {
+      serial_flush();
+      Serial.println("break");
+      break;
+    }
   }
 }
 
-void set_speed(int motor, int speed) {
-  mc.setSpeed(motor, -speed);
+void set_speed(int motor_id, int speed) {
+  mc.setSpeed(motor_id + 1, -speed);
 }
 
 void motor_ctl() {  //function to allow user input to control motor, display current speed, and tell user when max or minimum speed is reached
   c = ReceivedChars[0];
-  
-  if (c == 't' && NewData == true) { //On 't' input
+
+  //On 't' input
+  if (c == 't' && NewData) {
     int newSpeed;
     c = ReceivedChars[1];
+    int motor_id = c - '0';
     char *p = ReceivedChars + 2; //start reading string at second value
     strcpy(Access, p); // copy string value from ReceivedChars to access starting at second value
     int input = atoi(Access); //integer value from string Access
-    int motor_id = c - '0';
 
     if ((-800 <= input) && (input <= 800)) {  // if integer value of array is above 0 and equal to or less than 800. or if the result of comparing string Access to the string "0" is 0/the same.
       newSpeed = input; //convert new array string to an integer value
@@ -158,12 +170,13 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
       NewData = false;
     }
     else {
-      Serial.println("Invalid Input");
+      Serial.print("Invalid t: ");
+      Serial.println(input);
       NewData = false;
     }
   }
-
-  else if (c == 'r' && NewData == true) { // Reset
+  // Reset
+  else if (c == 'r' && NewData) { 
     char *p = ReceivedChars;
     strcpy(Access, p);
 
@@ -172,28 +185,31 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
         PluseCounters[i] = 0;
         MotorSpeeds[i] = 0;
       }
-      Serial.println("Reset.");
+      // Serial.println("Reset.");
       NewData = false;
     }
     else {
+      Serial.print("Invalid r: ");
+      Serial.println(Access);
       NewData = false;
     }
   }
-
+  // output of above statements
   else {
-    // TimeOut process for the fail safe
-    if (millis() - LastCmdTime > TIMEOUT) {
-      for (int i = 0; i < N_MOTOR; i++) {
-        MotorSpeeds[i] = 0;
-      }
-    }
-    // Update the motor speeds
-    for (int i = 0; i < N_MOTOR; i++) {
-      set_speed(i+1, MotorSpeeds[i]); //Commit new speeds given by
-      Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
-    }
-    LastCmdTime = millis();
-    //output of above statements
     NewData = false;
+  }
+  
+  // timeout for the fail safe
+  Serial.println(millis() - LastCmdTime);
+//  if (millis() - LastCmdTime > TIMEOUT) {
+//    for (int i = 0; i < N_MOTOR; i++) {
+//      MotorSpeeds[i] = 0;
+//    }
+//  }
+  
+  // Update the motor speeds
+  for (int i = 0; i < N_MOTOR; i++) {
+    set_speed(i, MotorSpeeds[i]); //Commit new speeds given by
+    // Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
   }
 }

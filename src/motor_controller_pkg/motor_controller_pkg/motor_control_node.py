@@ -117,7 +117,7 @@ class MotorControlNode(Node):
         if self._update_motor_flag:
             for i in range(self.n_motor_):
                 self.serial_port_.write(f't{i}{self.motor_speeds_[i]}\n'.encode())
-            self.get_logger().debug(f'set motor speed: {self.motor_speeds_}')
+            self.get_logger().info(f'set motor speed: {self.motor_speeds_}')
             self._update_motor_flag = False
             
         if self._reset_motor_flag:
