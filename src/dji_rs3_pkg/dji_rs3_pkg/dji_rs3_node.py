@@ -102,10 +102,11 @@ class DjiRs3Node(Node):
         self.bus_ = can.interface.Bus(
             bustype='socketcan',
             channel=self.channel_,
-            bitrate=BITRATE
+            bitrate=BITRATE,
         )
         self.send_id_ = 0x223
         self.rev_id_ = 0x222
+        self.timeout_ = 0.1
         
         self.cmd_list_ = []
 
@@ -137,7 +138,7 @@ class DjiRs3Node(Node):
                 data=data
             )
             try:
-                self.bus_.send(msg)
+                self.bus_.send(msg, timeout=self.timeout_)
                 self.get_logger().debug(f'Message sent {bytearray2string(data)} on {self.bus_.channel_info}')
             except can.CanError:
                 self.get_logger().error("Faild to send a CAN message.")
@@ -314,7 +315,7 @@ class DjiRs3Node(Node):
         length = -1 # the excepted command length
         stime = time.time()
         while True:
-            msg = self.bus_.recv()
+            msg = self.bus_.recv(timeout=self.timeout_)
             if msg is None:
                 break
             
