@@ -18,10 +18,14 @@ Date: $HOST{TIME %F %R}
     <topicList type="whitelist">
         <topic>rt/camera_info</topic>
         <topic>rt/dji_rs3</topic>
-        <topic>rt/image_compressed</topic>
         <topic>rt/image_count</topic>
         <topic>rt/image_raw</topic>
         <topic>rt/joy</topic>
+        <topic>rt/livox/imu</topic>
+        <topic>rt/livox/lidar</topic>
+        <topic>rt/motor1</topic>
+        <topic>rt/motor2</topic>
+        <topic>rt/motor3</topic>
     </topicList>
     <uploadConfig protocol="internal">
         <deleteAfterUpload>false</deleteAfterUpload>

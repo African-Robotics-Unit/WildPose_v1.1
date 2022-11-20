@@ -17,10 +17,9 @@ frame_id      = 'livox_frame'
 lvx_file_path = '/home/livox/livox_test.lvx'
 cmdline_bd_code = 'livox0000000001'
 
-cur_path = os.path.split(os.path.realpath(__file__))[0] + '/'
-cur_config_path = cur_path + '../config'
-rviz_config_path = os.path.join(cur_config_path, 'livox_lidar.rviz')
-user_config_path = os.path.join(cur_config_path, 'livox_lidar_config.json')
+config_path = '/home/naoya/ros2_ws/livox_ros2_driver/src/livox_ros2_driver/config'
+rviz_config_path = os.path.join(config_path, 'livox_lidar.rviz')
+user_config_path = os.path.join(config_path, 'livox_lidar_config.json')
 ################### Livox TELE-15 user-defined parameters end #####################
 
 livox_ros2_params = [
@@ -163,6 +162,13 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level','ERROR']
     )
 
+    livox_rviz = Node(
+        package='rviz2',
+        executable='rviz2',
+        output='screen',
+        arguments=['--display-config', rviz_config_path]
+    )
+
     gamepad_node = Node(
         package='joy_linux',
         executable='joy_linux_node',
@@ -193,7 +199,7 @@ def generate_launch_description():
         output='screen',
         # arguments=['--ros-args', '--log-level','ERROR']
     )
-
+    
     rosbag = launch.actions.ExecuteProcess(
         cmd=[
             'ros2', 'bag', 'record',
@@ -207,11 +213,12 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # ximea_cam_driver,
-        # image_viewer,
+        ximea_cam_driver,
+        image_viewer,
         dji_rs3_node,
         gamepad_node,
         motor_control_node,
-        # livox_driver,
+        livox_driver,
+        livox_rviz,
         # rosbag,
     ])
