@@ -12,6 +12,7 @@ MotoronI2C mc(16);  // Motoron controller
 #define ENCODER_2B 10
 #define ENCODER_3A 5
 #define ENCODER_3B 4
+#define RESET 13
 #define TIMEOUT 500
 
 // #define N_PULSE_PER_REVOLUTION 48 // 48 counts per revolution of the motor shaft when counting both edges of both channels
@@ -82,6 +83,8 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(ENCODER_3A), Encoder3AInterrupt, CHANGE);
 
   // motor pin setting
+  pinMode(RESET, OUTPUT);
+  digitalWrite(RESET, HIGH);
   WIRE.begin(); // I2C with master mode
   LastCmdTime = millis();
   mc.reinitialize();
@@ -102,7 +105,15 @@ void loop()
   start_input();
   motor_ctl(); //function to control speed on key press
 
-  // motor position
+  // get motor status
+  uint16_t motor_status = mc.getStatusFlags();
+  Serial.print("Status: ");
+  for (int b = 15; b >= 0; b--) {
+    Serial.print(bitRead(motor_status, b));
+  }
+  Serial.println("");
+
+  // set motor position
   for (int i = 0; i < N_MOTOR; i++) {
     if (PreviousPluseCounters[i] != PluseCounters[i]) {
       HWSERIAL.printf("p%d%d\n", i, PluseCounters[i]);
@@ -180,6 +191,11 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
     char *p = ReceivedChars;
     strcpy(Access, p);
 
+    // reset the motor driver
+    digitalWrite(RESET, LOW);
+    delay(50);
+    digitalWrite(RESET, HIGH);
+
     if (strcmp(Access, "reset") == 0) {
       for (int i = 0; i < N_MOTOR; i++) {
         PluseCounters[i] = 0;
@@ -200,7 +216,7 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
   }
   
   // timeout for the fail safe
-  Serial.println(millis() - LastCmdTime);
+//  Serial.println(millis() - LastCmdTime);
 //  if (millis() - LastCmdTime > TIMEOUT) {
 //    for (int i = 0; i < N_MOTOR; i++) {
 //      MotorSpeeds[i] = 0;
@@ -210,6 +226,6 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
   // Update the motor speeds
   for (int i = 0; i < N_MOTOR; i++) {
     set_speed(i, MotorSpeeds[i]); //Commit new speeds given by
-    // Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
+    Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
   }
 }
