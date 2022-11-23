@@ -130,7 +130,6 @@ ximea_cam_parameters = {
 
 
 def generate_launch_description():
-    ld = LaunchDescription()
     now = datetime.now()
 
     ximea_cam_driver = Node(
@@ -216,16 +215,13 @@ def generate_launch_description():
         on_exit=launch.actions.Shutdown()
     )
 
-    # return LaunchDescription([
-    #     # ximea_cam_driver,
-    #     # image_viewer,
-    #     # dji_rs3_node,
-    #     gamepad_node,
-    #     motor_control_node,
-    #     # livox_driver,
-    #     # livox_rviz,
-    #     # rosbag,
-    # ])
-    ld.add_action(motor_control_node)
-    ld.add_action(gamepad_node)
-    return ld
+    return LaunchDescription([
+        # ximea_cam_driver,
+        # image_viewer,
+        dji_rs3_node,
+        gamepad_node,
+        motor_control_node,
+        # livox_driver,
+        # livox_rviz,
+        # rosbag,
+    ])
