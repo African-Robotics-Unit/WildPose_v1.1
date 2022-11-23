@@ -64,6 +64,26 @@ void Encoder3AInterrupt() {
 }
 
 
+void setup_motor_driver()
+{
+  pinMode(RESET, OUTPUT);
+  digitalWrite(RESET, LOW);
+  delay(10);
+  digitalWrite(RESET, HIGH);
+  
+  WIRE.begin(); // I2C with master mode
+  LastCmdTime = millis();
+  mc.reinitialize();
+  mc.disableCrc();
+  mc.clearResetFlag();
+  // Configure motors
+  for (int i = 0; i < N_MOTOR; i++) {
+    mc.setMaxAcceleration(i, 140);
+    mc.setMaxDeceleration(i, 200);
+  }
+}
+
+
 void setup()
 {
   // serial setting
@@ -83,18 +103,7 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(ENCODER_3A), Encoder3AInterrupt, CHANGE);
 
   // motor pin setting
-  pinMode(RESET, OUTPUT);
-  digitalWrite(RESET, HIGH);
-  WIRE.begin(); // I2C with master mode
-  LastCmdTime = millis();
-  mc.reinitialize();
-  mc.disableCrc();
-  mc.clearResetFlag();
-  // Configure motors
-  for (int i = 0; i < N_MOTOR; i++) {
-    mc.setMaxAcceleration(i, 140);
-    mc.setMaxDeceleration(i, 200);
-  }
+  setup_motor_driver();
 
   // Serial.println("INFO: Teensy is ready.");
 }
@@ -106,12 +115,17 @@ void loop()
   motor_ctl(); //function to control speed on key press
 
   // get motor status
-  uint16_t motor_status = mc.getStatusFlags();
-  Serial.print("Status: ");
-  for (int b = 15; b >= 0; b--) {
-    Serial.print(bitRead(motor_status, b));
-  }
-  Serial.println("");
+  Serial.printf("Protocol error: %d\n", mc.getProtocolErrorFlag());
+  Serial.printf("CRC error: %d\n", mc.getCrcErrorFlag());
+  Serial.printf("Command timeout latched: %d\n", mc.getCommandTimeoutLatchedFlag());
+  Serial.printf("Motor fault latched: %d\n", mc.getMotorFaultLatchedFlag());
+  Serial.printf("No power latched: %d\n", mc.getNoPowerLatchedFlag());
+  Serial.printf("Reset: %d\n", mc.getResetFlag());
+  Serial.printf("Motor faulting: %d\n", mc.getMotorFaultingFlag());
+  Serial.printf("No power: %d\n", mc.getNoPowerFlag());
+  Serial.printf("Error active: %d\n", mc.getErrorActiveFlag());
+  Serial.printf("Motor output enabled: %d\n", mc.getMotorOutputEnabledFlag());
+  Serial.printf("Motor driving: %d\n", mc.getMotorDrivingFlag());
 
   // set motor position
   for (int i = 0; i < N_MOTOR; i++) {
@@ -192,16 +206,14 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
     strcpy(Access, p);
 
     // reset the motor driver
-    digitalWrite(RESET, LOW);
-    delay(50);
-    digitalWrite(RESET, HIGH);
+    setup_motor_driver();
 
     if (strcmp(Access, "reset") == 0) {
       for (int i = 0; i < N_MOTOR; i++) {
         PluseCounters[i] = 0;
         MotorSpeeds[i] = 0;
       }
-      // Serial.println("Reset.");
+      Serial.println("Reset.");
       NewData = false;
     }
     else {
