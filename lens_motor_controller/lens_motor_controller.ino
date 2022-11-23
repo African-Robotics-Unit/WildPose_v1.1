@@ -8,10 +8,10 @@ MotoronI2C mc(16);  // Motoron controller
 #define N_MOTOR 3 // the number of motors
 #define ENCODER_1A 14
 #define ENCODER_1B 15
-#define ENCODER_2A 11
-#define ENCODER_2B 10
-#define ENCODER_3A 5
-#define ENCODER_3B 4
+#define ENCODER_2A 16
+#define ENCODER_2B 17
+#define ENCODER_3A 22
+#define ENCODER_3B 23
 #define RESET 13
 #define TIMEOUT 500
 
@@ -118,17 +118,17 @@ void loop()
   motor_ctl(); //function to control speed on key press
 
   // get motor status
-  Serial.printf("Protocol error: %d\n", mc.getProtocolErrorFlag());
-  Serial.printf("CRC error: %d\n", mc.getCrcErrorFlag());
-  Serial.printf("Command timeout latched: %d\n", mc.getCommandTimeoutLatchedFlag());
-  Serial.printf("Motor fault latched: %d\n", mc.getMotorFaultLatchedFlag());
-  Serial.printf("No power latched: %d\n", mc.getNoPowerLatchedFlag());
-  Serial.printf("Reset: %d\n", mc.getResetFlag());
-  Serial.printf("Motor faulting: %d\n", mc.getMotorFaultingFlag());
-  Serial.printf("No power: %d\n", mc.getNoPowerFlag());
-  Serial.printf("Error active: %d\n", mc.getErrorActiveFlag());
-  Serial.printf("Motor output enabled: %d\n", mc.getMotorOutputEnabledFlag());
-  Serial.printf("Motor driving: %d\n", mc.getMotorDrivingFlag());
+//  Serial.printf("Protocol error: %d\n", mc.getProtocolErrorFlag());
+//  Serial.printf("CRC error: %d\n", mc.getCrcErrorFlag());
+//  Serial.printf("Command timeout latched: %d\n", mc.getCommandTimeoutLatchedFlag());
+//  Serial.printf("Motor fault latched: %d\n", mc.getMotorFaultLatchedFlag());
+//  Serial.printf("No power latched: %d\n", mc.getNoPowerLatchedFlag());
+//  Serial.printf("Reset: %d\n", mc.getResetFlag());
+//  Serial.printf("Motor faulting: %d\n", mc.getMotorFaultingFlag());
+//  Serial.printf("No power: %d\n", mc.getNoPowerFlag());
+//  Serial.printf("Error active: %d\n", mc.getErrorActiveFlag());
+//  Serial.printf("Motor output enabled: %d\n", mc.getMotorOutputEnabledFlag());
+//  Serial.printf("Motor driving: %d\n", mc.getMotorDrivingFlag());
 
   // set motor position
   for (int i = 0; i < N_MOTOR; i++) {
@@ -136,6 +136,8 @@ void loop()
       HWSERIAL.printf("p%d%d\n", i, PluseCounters[i]);
       HWSERIAL.printf("r%d%f\n", i, PluseCounters[i] / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
       PreviousPluseCounters[i] = PluseCounters[i];
+//      Serial.printf("p%d%d\n", i, PluseCounters[i]);
+//      Serial.printf("r%d%f\n", i, PluseCounters[i] / float(N_PULSE_PER_REVOLUTION) / GEAR_RATIO);
     }
   }
 }
@@ -241,6 +243,6 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
   // Update the motor speeds
   for (int i = 0; i < N_MOTOR; i++) {
     set_speed(i, MotorSpeeds[i]); //Commit new speeds given by
-    Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
+//    Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
   }
 }
