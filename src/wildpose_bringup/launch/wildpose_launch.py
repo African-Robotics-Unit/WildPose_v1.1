@@ -187,6 +187,9 @@ def generate_launch_description():
         package='motor_controller_pkg',
         executable='motor_control_node',
         name='motor_control_node',
+        parameters=[
+            {'motor_speed', '500'}
+        ],
         arguments=['--ros-args',
             '--log-level','INFO'
         ]

@@ -70,6 +70,7 @@ void setup_motor_driver()
   digitalWrite(RESET, LOW);
   delay(10);
   digitalWrite(RESET, HIGH);
+  delay(1000);
   
   WIRE.begin(); // I2C with master mode
   LastCmdTime = millis();
@@ -81,6 +82,8 @@ void setup_motor_driver()
     mc.setMaxAcceleration(i, 140);
     mc.setMaxDeceleration(i, 200);
   }
+
+  serial_flush();
 }
 
 

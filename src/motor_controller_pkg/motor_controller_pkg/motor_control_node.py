@@ -40,10 +40,11 @@ def joymsg2f510(msg):
 class MotorControlNode(Node):
     def __init__(self, n_motor=3):
         super().__init__('motor_control_node')
+        self.declare_parameter("motor_speed", 200)
         
         # Motor parameters
         self.n_motor_ = n_motor
-        self.motor_speed_ = 200
+        self.motor_speed_ = self.get_parameter("motor_speed").get_parameter_value().integer_value
         self.revolutions_ = [0.0] * self.n_motor_   # the revolution of the gearmotor output 
         self.pluse_counters_ = [0] * self.n_motor_
         self.motor_speeds_ = [0] * self.n_motor_
@@ -77,6 +78,8 @@ class MotorControlNode(Node):
 
         # timer
         self.motor_state_timer_ = self.create_timer(0.1, self.check_motor_state)
+        
+        self.get_logger().info(f'{self.motor_speed_}')
 
     def joy_callback(self, msg):
         buttons, axes = joymsg2f510(msg)
