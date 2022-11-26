@@ -126,7 +126,7 @@ class DjiRs3Node(Node):
             self.move_to(dyaw=rl * 10)
         elif axes['joy_right'][1] != 0:
             ub = axes['joy_right'][1]
-            self.move_to(dpitch=ub * 10)
+            self.move_to(dpitch=ub * 5)
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
@@ -169,9 +169,9 @@ class DjiRs3Node(Node):
     ):
         hex_data = struct.pack(
             '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
-            int(dyaw * 10),
-            int(droll * 10),
-            int(dpitch * 10),
+            int(dyaw),
+            int(droll),
+            int(dpitch),
             0x00, # ctrl_byte,
             np.uint8(time_ms / 100), # time_for_action
         )
