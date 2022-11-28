@@ -149,6 +149,9 @@ def generate_launch_description():
         remappings=[
             ("/image", "/image_raw"),
         ],
+        parameters=[
+            {'autosize': True}
+        ],
         arguments=['--ros-args', '--log-level','ERROR'],
         on_exit=launch.actions.Shutdown()
     )
