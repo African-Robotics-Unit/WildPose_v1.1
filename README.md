@@ -413,7 +413,7 @@ $ ros2 launch wildpose_bringup wildpose_launch.py
 After that, you can open eCAL Recorder.
 
 ```bash
-$ ecal_rec_gui --config ~/WildPose_v1.1/src/wildpose_bringup/config/config.ecalrec
+$ ecal_rec_gui --config ~/WildPose_v1.1/src/wildpose_bringup/config/config.ecalrec --activate
 ```
 
 ## Generate Video
