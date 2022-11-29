@@ -214,7 +214,7 @@ This is [the original GitHub repository](https://github.com/Livox-SDK/livox_ros2
 
 ```bash
 $ cd ~/ros2_ws
-$ git clone https://github.com/Livox-SDK/livox_ros2_driver.git livox_ros2_driver/src
+$ git clone https://github.com/DenDen047/livox_ros2_driver.git livox_ros2_driver/src
 $ cd livox_ros2_driver
 $ colcon build
 $ source ~/ros2_ws/livox_ros2_driver/install/setup.bash
