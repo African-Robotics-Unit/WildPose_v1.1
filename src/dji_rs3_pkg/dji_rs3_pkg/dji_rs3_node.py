@@ -111,7 +111,6 @@ class DjiRs3Node(Node):
         self.cmd_list_ = []
 
         self.recenter()
-        # self.move_to(dyaw=90, dpitch=0, droll=0, time_ms=0)
         self.timer_ = self.create_timer(0.1, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
@@ -167,6 +166,20 @@ class DjiRs3Node(Node):
         droll: float = 0, 
         time_ms: int = 0
     ):
+        # compensation
+        if dyaw > 0:
+            dyaw += 1
+        elif dyaw < 0:
+            dyaw -= 1
+        if dpitch > 0:
+            dpitch += 1
+        elif dpitch < 0:
+            dpitch -= 1
+        if droll > 0:
+            droll += 1
+        elif droll < 0:
+            droll -= 1
+                
         hex_data = struct.pack(
             '<3h2B',    # format: https://docs.python.org/3/library/struct.html#format-strings
             int(dyaw),
