@@ -28,6 +28,11 @@ unsigned long LastCmdTime = 0;
 // Encoders
 int PreviousPluseCounters[] = {0, 0, 0};
 int PluseCounters[] = {0, 0, 0};
+float RevolusionLimits[3][2] = {
+  {-2.0, 0.0}, 
+  {0.0, 2.2}, 
+  {0.0, 1.7}
+};
 // Serial
 char c;
 const byte NumChars = 32; // Set a read-only value of 32 bytes and assign it to NumChars
@@ -80,7 +85,7 @@ void setup_motor_driver()
   // Configure motors
   for (int i = 0; i < N_MOTOR; i++) {
     mc.setMaxAcceleration(i, 140);
-    mc.setMaxDeceleration(i, 200);
+    mc.setMaxDeceleration(i, 300);
   }
 
   serial_flush();
@@ -179,6 +184,19 @@ void start_input() {
 }
 
 void set_speed(int motor_id, int speed) {
+//  speed *= -1;
+  int min_limit = RevolusionLimits[motor_id][0] * GEAR_RATIO * N_PULSE_PER_REVOLUTION;
+  int max_limit = RevolusionLimits[motor_id][1] * GEAR_RATIO * N_PULSE_PER_REVOLUTION;
+
+  if (
+    !(min_limit <= PluseCounters[motor_id] && PluseCounters[motor_id] <= max_limit) && (
+      (PluseCounters[motor_id] < min_limit && sgn(speed) == -1) || (max_limit < PluseCounters[motor_id] && sgn(speed) == 1)
+    )
+  ) {
+    Serial.printf("Limit: %d\n", PluseCounters[motor_id]);
+    speed = 0;
+  }
+  
   mc.setSpeed(motor_id + 1, -speed);
 }
 
@@ -245,4 +263,11 @@ void motor_ctl() {  //function to allow user input to control motor, display cur
     set_speed(i, MotorSpeeds[i]); //Commit new speeds given by
 //    Serial.printf("Motor%d speed is %d\n", i, MotorSpeeds[i]);
   }
+}
+
+
+static inline int8_t sgn(int val) {
+  if (val < 0) return -1;
+  if (val==0) return 0;
+  return 1;
 }

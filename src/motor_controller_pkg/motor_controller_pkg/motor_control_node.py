@@ -53,6 +53,11 @@ class MotorControlNode(Node):
             self.create_publisher(MotorStatus, f'motor{i+1}', 10)
             for i in range(self.n_motor_)
         ]
+        self.motor_limits = [
+            -2.0,    # motor1 (Focus)
+            2.2,     # motor2 (Zoom)
+            1.7,     # motor3 (Aperture)
+        ]
 
         # Serial setting
         self.serial_port_ = serial.Serial(
@@ -154,7 +159,7 @@ class MotorControlNode(Node):
                 else:
                     self.get_logger().error(f'Undefined command: {data}')
             except ValueError:
-                self.get_logger().error(f'Failed to covnert "{data[1]}" a int value.')
+                self.get_logger().error('Failed to covnert "0x{}" a int value.'.format(hex(ord(data[1]))))
                     
         for i in range(self.n_motor_):
             msg = MotorStatus()

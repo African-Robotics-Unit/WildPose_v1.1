@@ -62,6 +62,8 @@ ximea_cam_parameters = {
 
     # Saves images everytime a trigger is pressed, under the director `<image_directory>/calib`
     'calib_mode': False,
+    
+    'cam_context_path': '/home/naoya/WildPose_v1.1/record/cam_context.bin',
 
     ####################
     # Diagnostics Configuration Parameters Go Here!

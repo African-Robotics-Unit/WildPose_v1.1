@@ -432,3 +432,9 @@ Convert a rosbag file into a video file:
 $ cd src/
 $ ./rosbag2video.py --input_db ~/WildPose_v1.1/rosbags/20221002_192302/20221002_192302_0.db3
 ```
+
+## Replay
+
+```bash
+$ ros2 run image_view image_view --ros-args --remap /image:=/image_raw
+```
