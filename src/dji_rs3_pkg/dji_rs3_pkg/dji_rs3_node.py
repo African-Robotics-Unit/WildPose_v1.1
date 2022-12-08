@@ -111,7 +111,7 @@ class DjiRs3Node(Node):
         self.cmd_list_ = []
 
         self.recenter()
-        self.timer_ = self.create_timer(0.1, self.loop)
+        self.timer_ = self.create_timer(1/50, self.loop)
 
         self.get_logger().info("dji_rs3_node started.")
         
