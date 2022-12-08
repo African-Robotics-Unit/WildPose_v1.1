@@ -120,12 +120,19 @@ class DjiRs3Node(Node):
         if buttons['joy_right'] == 1:
             # move to the home position
             self.recenter()
-        elif axes['joy_right'][0] != 0:
-            rl = - axes['joy_right'][0]
-            self.move_to(dyaw=rl * 10)
-        elif axes['joy_right'][1] != 0:
-            ub = axes['joy_right'][1]
-            self.move_to(dpitch=ub * 5)
+        else:
+            if axes['joy_right'][0] != 0:
+                rl = - axes['joy_right'][0]
+            else:
+                rl = 0
+            if axes['joy_right'][1] != 0:
+                ub = axes['joy_right'][1]
+            else:
+                ub = 0
+            self.move_to(
+                dyaw=rl * 10, 
+                dpitch=ub * 5
+            )
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):

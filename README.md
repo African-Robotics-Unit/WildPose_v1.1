@@ -27,7 +27,7 @@ To set up the Jetson AGX Xavier Developer Kit, we need a host computer installed
 Unleash the limitation of CPU ([the reference](https://forums.developer.nvidia.com/t/cpus-usage-problem-solved/65993/3)).
 ```bash
 $ sudo nvpmodel -m 0
-$ sudo /usr/bin/jetson_clocks
+$ sudo /usr/bin/jetson_clocks --fan
 ```
 
 #### General Settings
