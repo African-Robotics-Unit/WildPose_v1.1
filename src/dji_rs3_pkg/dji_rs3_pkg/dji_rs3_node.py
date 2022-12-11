@@ -129,10 +129,12 @@ class DjiRs3Node(Node):
                 ub = axes['joy_right'][1]
             else:
                 ub = 0
-            self.move_to(
-                dyaw=rl * 10, 
-                dpitch=ub * 5
-            )
+                
+            if rl != 0 or ub != 0:
+                self.move_to(
+                    dyaw=rl * 10, 
+                    dpitch=ub * 5
+                )
             
     def send_can_message(self, cmd: List):
         for i in range(0, len(cmd), CAN_LENQ):
