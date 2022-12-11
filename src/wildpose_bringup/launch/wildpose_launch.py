@@ -106,7 +106,7 @@ ximea_cam_parameters = {
 
     # exposure settings
     'auto_exposure': False,          # auto exposure on or off
-    'exposure_time': 1000,           # manual exposure time in microseconds
+    'exposure_time': 3000, # 1000,           # manual exposure time in microseconds
     'manual_gain': 5.0,              # manual exposure gain (dB)
     'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1.0: favour only exposure)
     'auto_time_limit': 30000,        # auto exposure time limit in microseconds
