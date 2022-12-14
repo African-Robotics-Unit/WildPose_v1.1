@@ -132,8 +132,8 @@ class DjiRs3Node(Node):
                 
             if rl != 0 or ub != 0:
                 self.move_to(
-                    dyaw=rl * 10, 
-                    dpitch=ub * 5
+                    dyaw=rl * 30, 
+                    dpitch=ub * 30
                 )
             
     def send_can_message(self, cmd: List):
