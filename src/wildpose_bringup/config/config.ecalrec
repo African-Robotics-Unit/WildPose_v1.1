@@ -1,7 +1,8 @@
-<ecalRecServerConfig config_version="3">
+<ecalRecServerConfig config_version="4">
     <rootDirectory>/home/naoya/WildPose_v1.1/record/ecal_meas</rootDirectory>
     <measurementName>$HOST{TIME}_wildpose_v1.1</measurementName>
     <maxFileSizeMib>1000</maxFileSizeMib>
+    <oneFilePerTopic>false</oneFilePerTopic>
     <description>Measurement started by: $HOST{USERNAME}@$HOST{HOSTNAME}
 Date: $HOST{TIME %F %R}
 </description>
