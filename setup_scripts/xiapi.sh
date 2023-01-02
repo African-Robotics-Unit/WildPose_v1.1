@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # source: https://www.ximea.com/support/wiki/apis/Linux_TX1_and_TX2_Support#Installing-XIMEA-API-package
 
