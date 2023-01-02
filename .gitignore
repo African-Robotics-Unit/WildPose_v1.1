@@ -89,3 +89,4 @@ AMENT_IGNORE
 .vscode/sftp.json
 rosbags/**
 record/**
+data/**
