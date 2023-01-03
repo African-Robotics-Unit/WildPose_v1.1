@@ -176,6 +176,7 @@ Set the network configuration:
 This is [the original GitHub repository](https://github.com/Livox-SDK/livox_ros2_driver).
 
 ```bash
+$ sudo apt install -y ros-foxy-rviz2
 $ cd ~/ros2_ws
 $ git clone https://github.com/DenDen047/livox_ros2_driver.git livox_ros2_driver/src
 $ cd livox_ros2_driver
