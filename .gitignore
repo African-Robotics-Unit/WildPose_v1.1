@@ -87,6 +87,3 @@ AMENT_IGNORE
 # End of https://www.toptal.com/developers/gitignore/api/ros2
 
 .vscode/sftp.json
-rosbags/**
-record/**
-data/**

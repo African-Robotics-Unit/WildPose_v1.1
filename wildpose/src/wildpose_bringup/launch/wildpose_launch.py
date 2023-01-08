@@ -63,7 +63,7 @@ ximea_cam_parameters = {
     # Saves images everytime a trigger is pressed, under the director `<image_directory>/calib`
     'calib_mode': False,
     
-    'cam_context_path': '/home/naoya/WildPose_v1.1/record/cam_context_{}.bin'.format(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')),
+    'cam_context_path': '/home/naoya/WildPose_v1.1/wildpose/record/cam_context_{}.bin'.format(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')),
 
     ####################
     # Diagnostics Configuration Parameters Go Here!
@@ -214,7 +214,7 @@ def generate_launch_description():
         cmd=[
             'ros2', 'bag', 'record',
             '/xi_image_info', '/image_raw', '/livox/lidar', '/livox/imu',
-            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/src/wildpose_bringup/config/reliability_override.yaml',
+            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/wildpose/src/wildpose_bringup/config/reliability_override.yaml',
             # '--polling-interval', '0',
             '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
         ],
