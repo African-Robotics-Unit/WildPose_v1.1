@@ -224,6 +224,12 @@ Add the following line into your `.bashrc`.
 export RMW_IMPLEMENTATION=rmw_ecal_dynamic_cpp
 ```
 
+Install Python eCAL API.
+```bash
+$ sudo apt install -y python3 python3-pip
+$ sudo apt install -y python3-ecal5
+```
+
 #### jtop
 
 To check the Jetson status, [`jtop`](https://github.com/rbonghi/jetson_stats) should be installed.
