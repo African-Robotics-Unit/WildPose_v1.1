@@ -31,7 +31,7 @@ int PluseCounters[] = {0, 0, 0};
 float RevolusionLimits[3][2] = {
   {-2.0, 0.0}, 
   {0.0, 2.2}, 
-  {-1000.0, 1000.0}  // {0.0, 1.7}
+  {0.0, 1.7}
 };
 // Serial
 char c;
