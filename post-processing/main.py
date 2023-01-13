@@ -18,6 +18,7 @@ def main():
         sys.exit(f'Error: cannot open {meas_path}')
 
     pprint(meas.get_channel_names())
+    # convert image_raw into a video file
 
 
 if __name__ == "__main__":
