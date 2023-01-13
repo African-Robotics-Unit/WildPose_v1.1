@@ -6,7 +6,11 @@ protocol_module = "dji_rs3_pkg/protocol"
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name, protocol_module],
+    packages=[
+        package_name, protocol_module,
+        'dji_rs3_pkg/protocol/connection',
+        'dji_rs3_pkg/protocol/sdk',
+    ],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
