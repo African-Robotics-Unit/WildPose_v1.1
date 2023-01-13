@@ -20,3 +20,9 @@ RUN apt-get install -y libpcl-dev
 RUN apt-get install -y python3-pcl pcl-tools
 RUN python3 -m pip install -U setuptools
 RUN python3 -m pip install python-pcl
+
+# eCAL
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:ecal/ecal-latest
+RUN apt-get update
+RUN apt-get install -y python3-ecal5
