@@ -4,6 +4,7 @@ from pprint import pprint
 
 import ecal
 import ecal.measurement.hdf5
+from ximea import xiapi
 
 
 def main():
@@ -19,6 +20,8 @@ def main():
 
     pprint(meas.get_channel_names())
     # convert image_raw into a video file
+
+    # offline processing
 
 
 if __name__ == "__main__":
