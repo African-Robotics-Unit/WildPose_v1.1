@@ -6,11 +6,14 @@
 	"build": {
 		// Path is relataive to the devcontainer.json file.
 		"dockerfile": "Dockerfile"
-	}
-	// "image": "mcr.microsoft.com/devcontainers/python:0-3.8",
-	// "features": {
-	// 	"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {}
-	// }
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"Serhioromano.vscode-gitflow"
+			]
+		}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
