@@ -10,6 +10,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				"donjayamanne.python-extension-pack",
+				"TabNine.tabnine-vscode"
 			]
 		}
 	},
