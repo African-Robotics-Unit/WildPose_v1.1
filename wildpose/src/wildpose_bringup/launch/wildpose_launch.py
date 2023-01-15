@@ -210,18 +210,6 @@ def generate_launch_description():
         # arguments=['--ros-args', '--log-level','ERROR']
     )
     
-    rosbag = launch.actions.ExecuteProcess(
-        cmd=[
-            'ros2', 'bag', 'record',
-            '/xi_image_info', '/image_raw', '/livox/lidar', '/livox/imu',
-            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/wildpose/src/wildpose_bringup/config/reliability_override.yaml',
-            # '--polling-interval', '0',
-            '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
-        ],
-        output='screen',
-        on_exit=launch.actions.Shutdown()
-    )
-
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
@@ -230,5 +218,4 @@ def generate_launch_description():
         motor_control_node,
         livox_driver,
         livox_rviz,
-        # rosbag,
     ])
