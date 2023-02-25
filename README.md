@@ -299,6 +299,9 @@ $ cansend can0 223#AA1A000300000000 && \
     cansend can0 223#2211A2420E002000 && \
     cansend can0 223#3000400001147B40 && \
     cansend can0 223#97BE
+
+# read CAN data
+$ candump -x can0 &
 ```
 
 References:
