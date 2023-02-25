@@ -62,7 +62,7 @@ ximea_cam_parameters = {
 
     # Saves images everytime a trigger is pressed, under the director `<image_directory>/calib`
     'calib_mode': False,
-    
+
     'cam_context_path': '/home/naoya/WildPose_v1.1/wildpose/record/cam_context_{}.bin'.format(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')),
 
     ####################
@@ -87,7 +87,7 @@ ximea_cam_parameters = {
     # 'format': "XI_RGB24", # BGR 24 bit
     'format': "XI_RAW8",
     # 'format': "XI_MONO8",
-    
+
     # camera coloring
     # white balance mode: 0 - none, 1 - use coefficients, 2: auto
     'white_balance_mode': 2,
@@ -105,12 +105,12 @@ ximea_cam_parameters = {
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
-    'auto_exposure': False,          # auto exposure on or off
+    'auto_exposure': True,          # auto exposure on or off
     'exposure_time': 3000, # 1000,           # manual exposure time in microseconds
     'manual_gain': 5.0,              # manual exposure gain (dB)
-    'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1.0: favour only exposure)
-    'auto_time_limit': 30000,        # auto exposure time limit in microseconds
-    'auto_gain_limit': 2.0,          # auto exposure gain limit
+    'auto_exposure_priority': 1.0,   # auto exposure to gain ratio (1.0: favour only exposure)
+    'auto_time_limit': 50000,        # auto exposure time limit in microseconds
+    'auto_gain_limit': 100.0,          # auto exposure gain limit
 
     # region of interest
     # MQ022CG-CM: 2048x1088
@@ -125,7 +125,7 @@ ximea_cam_parameters = {
     # 'roi_width': 1920,  # width height in pixels
     # 'roi_height': 1080,
     # - 720p (1280x720)
-    'roi_left': 512,      # top left corner in pixels
+    'roi_left': 512,      # top left corner in pixels (this is a mistake, it should be 384)
     'roi_top': 184,
     'roi_width': 1280,  # width height in pixels
     'roi_height': 720,
@@ -209,7 +209,7 @@ def generate_launch_description():
         output='screen',
         # arguments=['--ros-args', '--log-level','ERROR']
     )
-    
+
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
