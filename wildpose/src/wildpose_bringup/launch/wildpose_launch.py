@@ -210,6 +210,20 @@ def generate_launch_description():
         # arguments=['--ros-args', '--log-level','ERROR']
     )
 
+    cam_calib_node = Node(
+        package='camera_calibration',
+        executable='camera_calibration_node',
+        name='camera_calibration_node',
+        parameters=[
+            {'size', '7x9'},
+            {'square', '0.04'},  # in meter
+        ],
+        arguments=[
+            '--ros-args',
+            '--image', '/rt/image_raw'
+        ]
+    )
+
     return LaunchDescription([
         ximea_cam_driver,
         image_viewer,
@@ -218,4 +232,5 @@ def generate_launch_description():
         motor_control_node,
         livox_driver,
         livox_rviz,
+        # cam_calib_node
     ])
