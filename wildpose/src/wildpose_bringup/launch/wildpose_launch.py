@@ -100,12 +100,12 @@ ximea_cam_parameters = {
     'hw_trigger_edge': 0,   # if hw trigger, 0/1: rising/falling edge trigger
 
     # for camera frame rate
-    'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
+    'frame_rate_control': False, # enable or disable frame rate control (works if no triggering is enabled)
     'frame_rate_set': 170,  # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
-    'auto_exposure': True,          # auto exposure on or off
+    'auto_exposure': False,          # auto exposure on or off
     'exposure_time': 3000, # 1000,           # manual exposure time in microseconds
     'manual_gain': 5.0,              # manual exposure gain (dB)
     'auto_exposure_priority': 1.0,   # auto exposure to gain ratio (1.0: favour only exposure)

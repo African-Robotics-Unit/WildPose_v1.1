@@ -7,7 +7,7 @@
         "/home/naoya/ros2_ws/livox_ros2_driver/install/livox_interfaces/lib/python3.8/site-packages",
         "/opt/ros/foxy/lib/python3.8/site-packages"
     ],
-    "cmake.sourceDirectory": "${workspaceFolder}/src/wildpose_recorder_pkg",
+    "cmake.sourceDirectory": "${workspaceFolder}/wildpose/src/wildpose_bringup",
     "files.associations": {
         "optional": "cpp",
         "istream": "cpp",
