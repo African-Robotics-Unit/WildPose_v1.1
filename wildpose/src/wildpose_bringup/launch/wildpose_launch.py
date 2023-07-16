@@ -100,7 +100,7 @@ ximea_cam_parameters = {
     'hw_trigger_edge': 0,   # if hw trigger, 0/1: rising/falling edge trigger
 
     # for camera frame rate
-    'frame_rate_control': False, # enable or disable frame rate control (works if no triggering is enabled)
+    'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
     'frame_rate_set': 170,  # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
