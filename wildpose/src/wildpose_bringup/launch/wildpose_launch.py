@@ -1,5 +1,8 @@
 import os
+from datetime import datetime
+
 from ament_index_python.packages import get_package_share_directory
+import launch
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -9,15 +12,15 @@ xfer_format   = 0    # 0-Pointcloud2(PointXYZRTL), 1-customized pointcloud forma
 multi_topic   = 0    # 0-All LiDARs share the same topic, 1-One LiDAR one topic
 data_src      = 0    # 0-lidar,1-hub
 publish_freq  = 10.0 # freqency of publish,1.0,2.0,5.0,10.0,etc
+return_mode = 2 # 2-dual return
 output_type   = 0
 frame_id      = 'livox_frame'
 lvx_file_path = '/home/livox/livox_test.lvx'
 cmdline_bd_code = 'livox0000000001'
 
-cur_path = os.path.split(os.path.realpath(__file__))[0] + '/'
-cur_config_path = cur_path + '../config'
-rviz_config_path = os.path.join(cur_config_path, 'livox_lidar.rviz')
-user_config_path = os.path.join(cur_config_path, 'livox_lidar_config.json')
+config_path = '/home/naoya/ros2_ws/livox_ros2_driver/src/livox_ros2_driver/config'
+rviz_config_path = os.path.join(config_path, 'livox_lidar.rviz')
+user_config_path = os.path.join(config_path, 'livox_lidar_config.json')
 ################### Livox TELE-15 user-defined parameters end #####################
 
 livox_ros2_params = [
@@ -28,6 +31,7 @@ livox_ros2_params = [
     {"output_data_type": output_type},
     {"frame_id": frame_id},
     {"lvx_file_path": lvx_file_path},
+    {"return_mode": return_mode},
     {"user_config_path": user_config_path},
     {"cmdline_input_bd_code": cmdline_bd_code}
 ]
@@ -42,7 +46,7 @@ ximea_cam_parameters = {
     # camera properties (https://github.com/wavelab/ximea_ros_cam)
     'serial_no': "29970951",  # serial number on the backplate
     'cam_name': "ximea_MQ022CG-CM",   # Name of the camera used when saving camera images and snapshots under the directory pointed by image_directory
-    'calib_file': "", # Calibration file used by the camera
+    # 'calib_file': "", # Calibration file used by the camera
     'frame_id': '0',
     'num_cams_in_bus': 1, # Number of USB cameras processed by a single USB controller
     'bw_safetyratio': 1.0,  # Bandwidth safety ratio, a multiplier to the bandwidth allocated for each camera
@@ -58,6 +62,8 @@ ximea_cam_parameters = {
 
     # Saves images everytime a trigger is pressed, under the director `<image_directory>/calib`
     'calib_mode': False,
+    
+    'cam_context_path': '/home/naoya/WildPose_v1.1/wildpose/record/cam_context_{}.bin'.format(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')),
 
     ####################
     # Diagnostics Configuration Parameters Go Here!
@@ -65,7 +71,7 @@ ximea_cam_parameters = {
 
     'enable_diagnostics': True,
     'data_age_max': 0.1,
-    'pub_frequency': 10.0,
+    'pub_frequency': 170.0,
     'pub_frequency_tolerance': 1.0,
 
     ####################
@@ -78,8 +84,10 @@ ximea_cam_parameters = {
     'image_transport_compressed_png_level': 5,  # 1 to 9 (9: max compression)
 
     # colour image format
-    'format': "XI_RGB24", # BGR 24 bit
-
+    # 'format': "XI_RGB24", # BGR 24 bit
+    'format': "XI_RAW8",
+    # 'format': "XI_MONO8",
+    
     # camera coloring
     # white balance mode: 0 - none, 1 - use coefficients, 2: auto
     'white_balance_mode': 2,
@@ -93,35 +101,63 @@ ximea_cam_parameters = {
 
     # for camera frame rate
     'frame_rate_control': True, # enable or disable frame rate control (works if no triggering is enabled)
-    'frame_rate_set': 0,      # for trigger mode, fps limiter (0 for none)
+    'frame_rate_set': 170,  # for trigger mode, fps limiter (0 for none)
     'img_capture_timeout': 1000,    # timeout in milliseconds for xiGetImage()
 
     # exposure settings
-    'auto_exposure': False,          # auto exposure on or off
-    'exposure_time': 6000,           # manual exposure time in microseconds
-    'manual_gain': 9.0,              # manual exposure gain
+    'auto_exposure': True,          # auto exposure on or off
+    'exposure_time': 3000, # 1000,           # manual exposure time in microseconds
+    'manual_gain': 5.0,              # manual exposure gain (dB)
     'auto_exposure_priority': 0.8,   # auto exposure to gain ratio (1.0: favour only exposure)
     'auto_time_limit': 30000,        # auto exposure time limit in microseconds
     'auto_gain_limit': 2.0,          # auto exposure gain limit
 
     # region of interest
-    'roi_left': 0,      # top left corner in pixels
-    'roi_top': 0,
+    # MQ022CG-CM: 2048x1088
+    # - Full (2048x1088)
+    # 'roi_left': 0,      # top left corner in pixels
+    # 'roi_top': 0,
+    # 'roi_width': 2048,  # width height in pixels
+    # 'roi_height': 1088,
+    # - 1080p(1920x1080)
+    # 'roi_left': 64,      # top left corner in pixels
+    # 'roi_top': 4,
+    # 'roi_width': 1920,  # width height in pixels
+    # 'roi_height': 1080,
+    # - 720p (1280x720)
+    'roi_left': 512,      # top left corner in pixels
+    'roi_top': 184,
     'roi_width': 1280,  # width height in pixels
-    'roi_height': 1024,
+    'roi_height': 720,
     ################### XIMEA camera user-defined parameters end #####################
 }
 
-ximea_ros2_cam_params = [{k: v} for k, v in ximea_cam_parameters.items()]
-
 
 def generate_launch_description():
+    now = datetime.now()
+
     ximea_cam_driver = Node(
         package='ximea_ros2_cam',
         executable='ximea_ros2_cam_node',
-        name='ximea_cam_publisher',
+        name='ximea_cam_node',
         output='screen',
-        parameters=ximea_ros2_cam_params
+        parameters=[{k: v} for k, v in ximea_cam_parameters.items()],
+        arguments=['--ros-args', '--log-level','ERROR']
+    )
+
+    image_viewer = Node(
+        package='image_view',
+        executable='image_view',
+        name='image_view',
+        output='screen',
+        remappings=[
+            ("/image", "/image_raw"),
+        ],
+        parameters=[
+            {'autosize': True}
+        ],
+        arguments=['--ros-args', '--log-level','ERROR'],
+        on_exit=launch.actions.Shutdown()
     )
 
     livox_driver = Node(
@@ -129,10 +165,70 @@ def generate_launch_description():
         executable='livox_ros2_driver_node',
         name='livox_lidar_publisher',
         output='screen',
-        parameters=livox_ros2_params
+        parameters=livox_ros2_params,
+        arguments=['--ros-args', '--log-level','ERROR']
+    )
+
+    livox_rviz = Node(
+        package='rviz2',
+        executable='rviz2',
+        output='screen',
+        arguments=['--display-config', rviz_config_path]
+    )
+
+    gamepad_node = Node(
+        package='joy_linux',
+        executable='joy_linux_node',
+        name='gamepad_f710_publisher',
+        parameters=[
+            {'dev', '/dev/input/js0'},
+            {'dev_name', 'Wireless Gamepad F710'},
+            {'autorepeat_rate', '0.1'}
+        ],
+        arguments=['--ros-args',
+            '--log-level','ERROR'
+        ]
+    )
+
+    motor_control_node = Node(
+        package='motor_controller_pkg',
+        executable='motor_control_node',
+        name='motor_control_node',
+        parameters=[
+            {'motor_speed', '500'},
+        ],
+        arguments=['--ros-args',
+            '--log-level','INFO'
+        ]
+    )
+
+    dji_rs3_node = Node(
+        package='dji_rs3_pkg',
+        executable='dji_rs3_node',
+        name='dji_rs3_node',
+        output='screen',
+        # arguments=['--ros-args', '--log-level','ERROR']
+    )
+    
+    rosbag = launch.actions.ExecuteProcess(
+        cmd=[
+            'ros2', 'bag', 'record',
+            '/xi_image_info', '/image_raw', '/livox/lidar', '/livox/imu',
+            '--qos-profile-overrides-path', '/home/naoya/WildPose_v1.1/wildpose/src/wildpose_bringup/config/reliability_override.yaml',
+            # '--polling-interval', '0',
+            '-o', os.path.join('./rosbags/', now.strftime('%Y%m%d_%H%M%S')),
+        ],
+        output='screen',
+        on_exit=launch.actions.Shutdown()
     )
 
     return LaunchDescription([
         ximea_cam_driver,
+        image_viewer,
+        dji_rs3_node,
+        gamepad_node,
+        motor_control_node,
         livox_driver,
+        livox_rviz,
+        # rosbag,
     ])

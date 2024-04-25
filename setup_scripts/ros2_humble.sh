@@ -15,7 +15,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 
 # Install ROS 2 packages
 sudo apt update && sudo apt upgrade -y
-sudo apt install ros-foxy-desktop -y
+sudo apt install ros-humble-desktop -y
 
 # Install Python3
 sudo apt install python3-pip -y

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>wilpose_bringup</name>
+  <name>wildpose_bringup</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="sh.mn.nat@gmail.com">naoya</maintainer>
@@ -10,7 +10,13 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>ximea_ros2_cam</exec_depend>
+  <exec_depend>image_view</exec_depend>
   <exec_depend>livox_ros2_driver</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>joy_linux</exec_depend>
+  <exec_depend>motor_controller_pkg</exec_depend>
+  <exec_depend>dji_rs3_pkg</exec_depend>
+  <exec_depend>rosbag2</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
